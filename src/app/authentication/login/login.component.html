@@ -1,0 +1,117 @@
+
+<!-- Barra Superior-->
+    <div class="w-full bg-white shadow-md flex items-center justify-between px-6 py-3 border-b border-gray-200">
+    <h1 class="text-2xl font-bold text-purple-700">TaskFlow DS</h1>
+    </div>
+
+<div class="flex min_h-screen bg-gradient-to-r from-purple-500 to-pink-500">
+
+    <!-- Lado izquierdo-->
+
+    <div class="hidden lg:flex w-1/2 items-center justify-center p-10">
+        <div class="text-center text-white space-y-6">
+            <h2 class="text-3xl font-bold leading-snug">
+                Empieza agregando tu primera tarea y mantén tu productividad al máximo.
+            </h2>
+            <img src="/img1.png" alt="Registro ilustración" class="w-full max-w-lg mx-auto object-contain" />
+        </div>
+    </div>
+
+    <!-- Lado derecho formulario-->
+     <div class="flex w-full lg:w-1/2 items-center justify-center p-8">
+        <div class="w-full max-w-md bg-white shadow-2xl rounded-3xl p-10">
+            <h2 class="text-lg font-medium text-gray-700 text-center">
+                Bienvenido a <span class="text-purple-600 font-bold">TaskFlow DS</span>
+            </h2>
+            <h3 class="text-4xl font-extrabold text-center mt-2">Iniciar Sesion</h3>
+
+            <!-- Formulario-->
+            <form [formGroup]="loginForm" (ngSubmit)="submit()" class="mt-6 space-y-4">
+
+                <!-- documento id -->
+                <div>
+                    <label class="block text-sm font-small text-gray-600">Documento de identidad</label>
+                    <input type="number" formControlName="document_id" (input)="onDocumentInputRegister($event)"
+                        class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                        placeholder="Digita tu documento" >
+                        <!-- Validaciones documento id PENDIENTE-->
+                    <p *ngIf="loginForm.get('document_id')?.touched && loginForm.get('document_id')?.hasError('required')" class="text-red-500 text-xs mt-1">
+                        ⚠️ El documento es obligatorio
+                    </p>
+                    <p *ngIf="loginForm.get('document_id')?.touched && loginForm.get('document_id')?.hasError('minlength')" class="text-red-500 text-xs mt-1">
+                        ⚠️ El documento debe tener al menos 6 caracteres
+                    </p>
+                </div>
+                <!-- Contraseña -->
+<div class="relative">
+  <label class="block text-sm font-medium text-gray-600">Contraseña</label>
+
+  <!-- el type depende de showPassword -->
+  <input 
+    [type]="showPassword ? 'text' : 'password'" 
+    formControlName="password"
+    class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none pr-10"
+    placeholder="Contraseña"
+    (input)="onPasswordInput()" />
+
+  <!-- Botón para mostrar/ocultar -->
+  <button 
+    type="button" 
+    (click)="togglePasswordVisibility()" 
+    class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700">
+    <!--no juzguen la forma en como implememte los ojos jajajaj-->
+    <!-- Ojito abierto -->
+    <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" 
+      class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        d="M2.458 12C3.732 7.943 7.523 5 12 5
+           c4.477 0 8.268 2.943 9.542 7
+           -1.274 4.057-5.065 7-9.542 7
+           -4.477 0-8.268-2.943-9.542-7z"/>
+    </svg>
+
+    <!-- Ojito cerrado -->
+    <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" 
+      class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        d="M13.875 18.825A10.05 10.05 0 0112 19
+           c-4.477 0-8.268-2.943-9.542-7
+           a9.969 9.969 0 012.153-3.43M9.88 9.88
+           a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8"/>
+    </svg>
+  </button>
+
+  <!-- Validación -->
+  <p *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('requisitosNoCumplidos')" 
+     class="text-red-500 text-xs mt-1">
+    ⚠️ La contraseña no cumple con los requisitos
+  </p>
+</div>
+
+     <p class="text-indigo-600 font-semibold ">
+          Olvide la contraseña
+          <a routerLink="/change-password" class="text-indigo-600 font-semibold hover:underline">Recuperar</a>
+        </p>
+
+                     <!-- Botón registro -->
+        <button  type="submit"
+        [disabled]="!isFormReady"
+        [ngClass]="!isFormReady ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'"
+        class="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"> 
+        iniciar sesion
+        </button>
+
+        <p class="text-center text-sm mt-4 text-gray-600">
+          ¿No tienes una cuenta? 
+          <a href="/register" class="text-indigo-600 font-semibold hover:underline">Registrate</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
