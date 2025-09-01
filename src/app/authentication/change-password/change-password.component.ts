@@ -2,11 +2,13 @@ import { Component,OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {Router} from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 
 @Component({
   selector: 'app-change-password',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, RouterModule],
   templateUrl: './change-password.component.html',
   styleUrl: './change-password.component.css'
 })
