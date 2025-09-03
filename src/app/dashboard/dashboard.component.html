@@ -1,1 +1,135 @@
-<p>dashboard works!</p>
+<!-- TOPBAR -->
+<header class="h-16 bg-white border-b border-gray-200 flex items-center px-6">
+  <!-- Logo -->
+  <div class="text-indigo-700 font-semibold">TaskFlow DS</div>
+
+  <!-- Search centro -->
+  <div class="mx-auto w-full max-w-2xl">
+    <div class="relative">
+      <input
+        type="text"
+        placeholder="Search your task here..."
+        class="w-full h-10 pl-4 pr-12 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+        aria-label="Buscar tareas"
+        (input)="onSearch($event)"
+      />
+      <button
+        aria-label="Buscar"
+        class="absolute right-1 top-1 h-8 w-8 rounded-full flex items-center justify-center bg-pink-500 shadow-md"
+      >
+        <span class="material-icons text-white text-[20px]">search</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Icons right -->
+  <div class="flex items-center space-x-4">
+    
+
+    <!-- User Menu -->
+    <div class="relative">
+      <button
+        aria-label="Perfil"
+        class="h-10 w-10 rounded-full bg-white shadow flex items-center justify-center"
+        (click)="toggleMenu()"
+      >
+        <span class="material-icons text-indigo-600">account_circle</span>
+      </button>
+      <div
+        *ngIf="isMenuOpen"
+        class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg"
+      >
+        <a routerLink="/perfil" class="block px-4 py-2 hover:bg-gray-100">
+            <span class="material-icons text-indigo-600">person</span>
+            Perfil
+        </a>
+        <a
+          routerLink="/login"
+          class="w-full text-left px-4 py-2 hover:bg-gray-100">
+          <span class="material-icons text-indigo-600">logout</span>
+            cerrar sesión
+    </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LAYOUT: sidebar + contenido -->
+<div class="flex">
+  <!-- SIDEBAR -->
+  <aside
+    class="w-64 bg-[#4f46e5] text-white min-h-[calc(100vh-4rem)] flex flex-col"
+  >
+    <div class="px-6 py-6">
+      <div class="text-sm text-gray-100/90">Menu</div>
+    </div>
+
+    <nav class="flex-1 px-4">
+      <ul class="space-y-2">
+        <li>
+          <a
+            routerLink="/dashboard/home-board"
+            routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/25"
+          >
+            <span class="material-icons text-white text-lg">dashboard</span>
+            <span class="font-medium">Tablero de inicio</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/dashboard/taskflow"
+            routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10"
+          >
+            <span class="material-icons text-white text-lg">check_circle</span>
+            <span>Mis tareas</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/dashboard/edit-task"
+            routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10"
+          >
+            <span class="material-icons text-white text-lg">edit</span>
+            <span>Editar tareas</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/ajustes"
+            routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10"
+          >
+            <span class="material-icons text-white text-lg">settings</span>
+            <span>Ajustes</span>
+          </a>
+        </li>
+
+        <li>
+          <a
+            routerLink="/dashboard/help"
+            routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10"
+          >
+            <span class="material-icons text-white text-lg">help_outline</span>
+            <span>Ayuda</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="px-6 py-6">
+     
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 p-6">
+    <router-outlet></router-outlet>
+  </main>
+</div>
