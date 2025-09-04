@@ -27,6 +27,15 @@ export class RegisterComponent implements OnInit {
     { value: 'TI', label: 'Tarjeta de Identidad' },
   ];
 
+  departaments=[
+    {value: 'Tecnología', label: 'Tecnología'},
+    {value: 'Recursos Humanos', label: 'Recursos Humanos'},
+    {value: 'Marketing', label: 'Marketing'},
+    {value: 'Finanzas', label: 'Finanzas'}, 
+    {value: 'Recursos Humanos' , label : 'Recursos Humanos'}
+    
+  ]
+
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
@@ -35,8 +44,10 @@ export class RegisterComponent implements OnInit {
       name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       last_name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       identification_type: ['', Validators.required],
+      departaments: ['', Validators.required],
       document_id: ['', [Validators.required, Validators.pattern('^[0-9]{6,15}$')]],
       password: ['', [Validators.required, this.validatePassword()]],
+
     });
   }
 
@@ -93,10 +104,10 @@ export class RegisterComponent implements OnInit {
 
   submit(): void {
     if (this.registerForm.valid) {
-      console.log('✅ Datos enviados:', this.registerForm.value);
+      console.log(' Datos enviados:', this.registerForm.value);
       // Aquí iría AuthService
     } else {
-      console.log('❌ Formulario inválido');
+      console.log('Formulario inválido');
     }
   }
 }

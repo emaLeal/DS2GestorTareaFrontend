@@ -15,6 +15,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @Output() searchChanged = new EventEmitter<string>();
   isMenuOpen = false;
   searchTerm: string = '';
+  sidebarCollapsed = false;
+  
 
   constructor(private searchService: SearchService) {}
 
@@ -25,7 +27,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
   }
-
+  toggleSidebar() {
+  this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
   onSearch(event: any): void {
     const term = event.target.value.toLowerCase();
     this.searchService.setSearchTerm(term);

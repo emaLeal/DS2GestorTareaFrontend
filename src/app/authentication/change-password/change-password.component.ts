@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
   styleUrl: './change-password.component.css'
 })
 export class ChangePasswordComponent {
- step: number = 2;// Paso actual (1 = correo, 2 = nueva contraseña)
+ step: number = 1;// Paso actual (1 = correo, 2 = nueva contraseña)
 
   formEmail!: FormGroup;
   formPassword!: FormGroup;

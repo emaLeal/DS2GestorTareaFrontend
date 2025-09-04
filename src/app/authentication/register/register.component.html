@@ -76,6 +76,7 @@
       ⚠️ Selecciona un tipo de documento
     </p>
   </div>
+  
   <div>
     <label class="block text-sm font-medium text-gray-600">Identificación</label>
     <input type="number" formControlName="document_id" (input)="onDocumentInputRegister($event)"
@@ -87,6 +88,19 @@
   </div>
 </div>
 
+
+<!-- Departamento -->
+   <div>
+    <label class="block text-sm font-medium text-gray-600">Departamento</label>
+    <select formControlName="departaments"
+      class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+      <option value="">Selecciona</option>
+      <option *ngFor="let departament of departaments" [value]="departament.value">{{ departament.label }}</option>
+    </select>
+    <p *ngIf="registerForm.get('departaments')?.touched && registerForm.get('departaments')?.hasError('required')" class="text-red-500 text-xs mt-1">
+      ⚠️ Selecciona un departamento
+    </p>
+   </div>
 
 <!-- Contraseña -->
 <div class="relative">
