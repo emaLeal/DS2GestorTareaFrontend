@@ -49,8 +49,13 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
       this.taskSubscription.unsubscribe();
     }
   }
+  openTaskId: number | null = null;
 
-  // Mock de tareas
+  toggleTaskOptions(task: any) {
+  this.openTaskId = this.openTaskId === task.id ? null : task.id;
+  }
+
+  // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
     this.tasks = [
       { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date() },
@@ -61,7 +66,10 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
       { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
     ];
   }
+  
 
+    
+  
   // Filtrar por estado
   getTasksByStatus(status: 'todo' | 'in-progress' | 'completed') {
     return this.filteredTasks.filter((t) => t.status === status);
@@ -89,19 +97,9 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   // Cerrar sesión
   logout(): void {
     console.log('Cerrar sesión');
-    // TODO: implementar logout real
+    
     this.router.navigate(['/login']);
   }
 
-  // Agregar tarea demo
-  addTask(): void {
-    const newTask: Task = {
-      id: this.tasks.length + 1,
-      title: 'Nueva tarea ' + (this.tasks.length + 1),
-      status: 'todo',
-      createdAt: new Date(),
-    };
-    this.tasks.push(newTask);
-    this.filteredTasks = [...this.tasks];
-  }
+  
 }
