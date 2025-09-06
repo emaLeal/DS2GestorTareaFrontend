@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SearchService } from '../../services/search.service';
+import { NgZone } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 /**
  * TaskFlowComponent
@@ -58,7 +61,7 @@ export class TaskflowComponent implements OnInit {
   // Simulated auto-increment id
   private nextId = 100;
 
-  constructor(private router: Router, private searchservice: SearchService) {}
+  constructor(private router: Router, private searchservice: SearchService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.loadTasksFromBackend(); // carga inicial (simulada)
@@ -76,6 +79,8 @@ export class TaskflowComponent implements OnInit {
   // 1) loadTasksFromBackend:
   //    Aquí se debe reemplazar la simulación por: this.tasksService.getTasks().subscribe(...) cuando este el backend
   loadTasksFromBackend() {
+    console.log("TaskFlow - Cargando tareas (simulado)...");
+
     const saved = localStorage.getItem('taskflow_tasks_v1');
     if (saved) {
       this.tasks = JSON.parse(saved);
@@ -110,9 +115,20 @@ export class TaskflowComponent implements OnInit {
   private updateTaskBackend(task: Task) {
     const idx = this.tasks.findIndex(t => t.id === task.id);
     if (idx > -1) {
+      console.log(idx);
+
+      console.log("TaskFlow - Task actualizada:", this.tasks);
+
       this.tasks[idx] = { ...task };
+      this.filteredTasks = [...this.tasks];
       this.persistLocal();
+      this.cdr.detectChanges();
+
     }
+  }
+
+  trackByTaskId(index: number, task: Task): number {
+    return task.id;
   }
 
   // persistencia simulada (local)
@@ -186,18 +202,26 @@ export class TaskflowComponent implements OnInit {
   }
 
   onDrop(event: DragEvent, status: Task['status']) {
+    
+
     event.preventDefault();
     const idStr = event.dataTransfer?.getData('text/plain');
     const id = idStr ? parseInt(idStr, 10) : this.draggedTaskId;
     if (!id) return;
     const task = this.tasks.find(t => t.id === id);
+
+    console.log("Task arrastrada:", task);
+
+
     if (!task) return;
-    if (task.status === status) return; // nada que hacer
+
+    // if (task.status === status) return; // nada que hacer
 
     task.status = status;
     this.updateTaskBackend(task); // punto para conectar update en backend
     this.draggedTaskId = null;
   }
+
 
   // marcar completada con botón
   markAsCompleted(task: Task) {
@@ -236,6 +260,10 @@ export class TaskflowComponent implements OnInit {
 
   // Filtrar por estado
   getTasksByStatus(status: 'todo' | 'in-progress' | 'completed') {
+    console.log("Filtrando tareas por estado:", status);
+    console.log(this.filteredTasks.filter((t) => t.status === status));
+    
+    
     return this.filteredTasks.filter((t) => t.status === status);
   }
 
