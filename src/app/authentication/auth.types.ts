@@ -4,10 +4,10 @@ export interface Login {
 }
 
 export interface User {
-    name: string,
+    first_name: string,
     last_name: string,
     document_id: string,
-    identification_type: string,
-    email: string,
-    password: string
+    department_id: string,
+    role_id: string,
+    password: string,
 }
