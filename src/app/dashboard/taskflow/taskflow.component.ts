@@ -40,6 +40,7 @@ export class TaskflowComponent implements OnInit {
   searchTerm: string = '';
   isMenuOpen = false;
   showSearchResults = false;
+  openTaskId: number | null = null; // <-- controla menú contextual abierto
 
   // Current editing/creating task
   currentTask: Partial<Task> = {
@@ -211,10 +212,26 @@ export class TaskflowComponent implements OnInit {
     this.updateTaskBackend(task);
   }
 
+  // -------------------------
+  // Opciones (tres puntitos)
+  // -------------------------
   toggleOptions(task: Task, event: Event) {
     event.stopPropagation();
-    // Puedes abrir un menú contextual (no implementado). Aquí solo log:
-    console.log('toggleOptions', task);
+    this.openTaskId = this.openTaskId === task.id ? null : task.id;
+  }
+
+  editTask(task: Task) {
+    console.log("Editar tarea:", task);
+    // ejemplo: navegar a ruta de edición (puedes abrir modal en lugar de esto)
+    this.router.navigate(['/dashboard/edit-task'], { queryParams: { id: task.id } });
+    this.openTaskId = null;
+  }
+
+  deleteTask(task: Task) {
+    this.tasks = this.tasks.filter(t => t.id !== task.id);
+    this.persistLocal();
+    this.filteredTasks = [...this.tasks];
+    this.openTaskId = null;
   }
 
   // Filtrar por estado

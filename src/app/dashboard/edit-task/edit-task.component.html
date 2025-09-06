@@ -1,1 +1,74 @@
-<p>edit-task works!</p>
+<div class="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+  <div class="bg-white rounded-lg shadow-2xl w-[820px] max-w-[95%] border-4 border-blue-200">
+    <div class="p-4 border-b">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-800">Editar tarea</h2>
+        <button (click)="cancel()" class="text-sm text-gray-600 underline">Atrás</button>
+      </div>
+    </div>
+
+    <form #editForm="ngForm" (ngSubmit)="saveChanges(editForm)" class="p-6">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Titulo</label>
+          <input
+            name="title"
+            [(ngModel)]="task.title"
+            required
+            maxlength="255"
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+          />
+        <div *ngIf="titleInvalid(editForm)" class="text-red-600 text-sm mt-1">El titulo es requerido</div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea
+            name="description"
+            [(ngModel)]="task.description"
+            rows="3"
+            required
+            class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de creación</label>
+            <input
+              type="date"
+              name="createdAt"
+              [(ngModel)]="task.createdAt"
+              required
+              class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de cierre</label>
+            <input
+              type="date"
+              name="closedAt"
+              [(ngModel)]="task.closedAt"
+              class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Estado</label>
+            <select name="status" [(ngModel)]="task.status" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2">
+              <option value="todo">To-Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" class="px-4 py-2 rounded-md border" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-md bg-pink-600 text-white">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
