@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -27,27 +29,30 @@ export class RegisterComponent implements OnInit {
     { value: 'TI', label: 'Tarjeta de Identidad' },
   ];
 
-  departaments=[
-    {value: 'Tecnología', label: 'Tecnología'},
-    {value: 'Recursos Humanos', label: 'Recursos Humanos'},
-    {value: 'Marketing', label: 'Marketing'},
-    {value: 'Finanzas', label: 'Finanzas'}, 
-    {value: 'Recursos Humanos' , label : 'Recursos Humanos'}
-    
+  departaments = [
+    { value: '1', label: 'Tecnología' },
+    { value: '2', label: 'Recursos Humanos' },
+    { value: '3', label: 'Marketing' },
+    { value: '4', label: 'Finanzas' },
+    { value: '5', label: 'Recursos Humanos' }
+
   ]
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private _fb: FormBuilder,
+    private _authService: AuthService,
+    private _router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.registerForm = this.fb.group({
+    this.registerForm = this._fb.group({
       email: ['', [Validators.required, Validators.email]],
-      name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\s]+$/)]],
+      first_name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       last_name: ['', [Validators.required, Validators.minLength(2), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       identification_type: ['', Validators.required],
-      departaments: ['', Validators.required],
+      department_id: ['', Validators.required],
       document_id: ['', [Validators.required, Validators.pattern('^[0-9]{6,15}$')]],
       password: ['', [Validators.required, this.validatePassword()]],
-
     });
   }
 
@@ -61,10 +66,10 @@ export class RegisterComponent implements OnInit {
       hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
   }
-  
+
 
   togglePasswordVisibility() {
-  this.showPassword = !this.showPassword;
+    this.showPassword = !this.showPassword;
   }
 
 
@@ -98,14 +103,18 @@ export class RegisterComponent implements OnInit {
   }
 
   get isFormReady(): boolean {
-  return this.registerForm.valid && Object.values(this.registerForm.controls).every(c => c.touched);
-}
+    return this.registerForm.valid && Object.values(this.registerForm.controls).every(c => c.touched);
+  }
 
 
   submit(): void {
     if (this.registerForm.valid) {
-      console.log(' Datos enviados:', this.registerForm.value);
+      const formData = { ...this.registerForm.value, role_id: 2 };
       // Aquí iría AuthService
+      this._authService.register(formData).subscribe(res => {
+        this._router.navigate(['/login'])
+      });
+
     } else {
       console.log('Formulario inválido');
     }
