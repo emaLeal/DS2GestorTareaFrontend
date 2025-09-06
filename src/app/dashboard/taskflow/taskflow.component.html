@@ -1,0 +1,303 @@
+<div class="min-h-screen bg-gray-50 p-6">
+    <!-- top bar like in images -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        
+        <div class="relative">
+          
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="bg-pink-600 text-white rounded-full px-4 py-2 shadow" (click)="openCreateModal()">
+          + Añadir Tarea 
+        </button>
+      </div>
+    </div>
+
+    <!-- board columns -->
+    <div class="grid grid-cols-3 gap-6 lg:grid-cols-3 md:grid-cols-1 sm:grid-cols-1">
+      <!-- To-Do -->
+      <div
+        class="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
+        (dragover)="allowDrop($event)"
+        (drop)="onDrop($event, 'todo')"
+      >
+        <div class="flex items-center mb-4">
+          <div class="flex items-center gap-2 text-sm text-pink-600">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <path d="M3 7h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 11h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M11 15h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="font-medium">Hacer</span>
+          </div>
+        </div>
+
+        <div class="space-y-4 min-h-[200px]">
+          <ng-container *ngFor="let t of getTasksByStatus('todo')">
+            <!--Este atributo HTML (draggable="true") le dice al navegador que ese elemento se puede arrastrar con el mouse.-->
+            <div 
+              class="bg-purple-50 rounded-lg p-4 flex items-start justify-between gap-4 shadow-sm cursor-grab hover:shadow-md"
+              draggable="true"
+              (dragstart)="onDragStart($event, t)"
+            >
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-purple-400 flex items-center justify-center text-white font-semibold">
+                  {{ t.title?.charAt(0)?.toUpperCase() }}
+                </div>
+                <div>
+                  <div class="font-medium text-gray-800">{{ t.title }}</div>
+                  <div class="text-xs text-gray-500 mt-1">{{ t.description || 'Sin descripción' }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Inicio:{{ formatDate(t.createdAt) }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Finaliza:{{formatDate(t.closedAt)}}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-col items-end gap-2 relative">
+                <button title="Abrir opciones" (click)="toggleOptions(t, $event)" class="p-1">
+                  <svg class="w-5 h-5 text-purple-700" viewBox="0 0 24 24" fill="none">
+                    <circle cx="5" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="19" cy="12" r="2" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Menú desplegable de los tres puntos pa editar/eliminar -->
+                <div
+                  *ngIf="openTaskId === t.id"
+                  class="absolute right-0 mt-6 w-28 bg-white border rounded-lg shadow-lg z-50"
+                >
+                  <button
+                    (click)="editTask(t)"
+                    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    (click)="deleteTask(t)"
+                    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-pink-600"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+
+                <button class="text-sm text-indigo-600 underline" (click)="markAsCompleted(t)">Marcar como listo</button>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- In Progress -->
+      <div
+        class="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
+        (dragover)="allowDrop($event)"
+        (drop)="onDrop($event, 'in-progress')"
+      >
+        <div class="flex items-center mb-4">
+          <div class="flex items-center gap-2 text-sm text-orange-500">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <path d="M3 7h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="font-medium">En progreso</span>
+          </div>
+        </div>
+
+        <div class="space-y-4 min-h-[200px]">
+          <ng-container *ngFor="let t of getTasksByStatus('in-progress')">
+            <div
+              class="bg-white rounded-lg p-4 flex items-start justify-between gap-4 shadow-sm cursor-grab hover:shadow-md"
+              draggable="true"
+              (dragstart)="onDragStart($event, t)"
+            ><!--Muestra los detalles de la tarea-->
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-semibold">
+                  {{ t.title?.charAt(0)?.toUpperCase() }}
+                </div>
+                <div>
+                  <div class="font-medium text-gray-800">{{ t.title }}</div>
+                  <div class="text-xs text-gray-500 mt-1">{{ t.description || 'Sin descripción' }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Inicio:{{ formatDate(t.createdAt) }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Finaliza:{{formatDate(t.closedAt)}}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-col items-end gap-2 relative">
+                <button title="Abrir opciones" (click)="toggleOptions(t, $event)" class="p-1">
+                  <svg class="w-5 h-5 text-purple-700" viewBox="0 0 24 24" fill="none">
+                    <circle cx="5" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="19" cy="12" r="2" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Menú desplegable de los tres puntos pa editar/eliminar -->
+                <div
+                  *ngIf="openTaskId === t.id"
+                  class="absolute right-0 mt-6 w-28 bg-white border rounded-lg shadow-lg z-50"
+                >
+                  <button
+                    (click)="editTask(t)"
+                    class="block w-full text-left px-4 py-2 text-sm hover:bg-purple-100"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    (click)="deleteTask(t)"
+                    class="block w-full text-left px-4 py-2 text-sm hover:bg-purple-100 text-pink-600"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+
+                <button class="text-sm text-indigo-600 underline" (click)="markAsCompleted(t)">Marcar como listo</button>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div
+        class="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
+        (dragover)="allowDrop($event)"
+        (drop)="onDrop($event, 'completed')"
+      >
+        <div class="flex items-center mb-4">
+          <div class="flex items-center gap-2 text-sm text-green-600">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="font-medium">Completado</span>
+          </div>
+        </div>
+
+        <div class="space-y-4 min-h-[200px]">
+          <ng-container *ngFor="let t of getTasksByStatus('completed')">
+            <div class="bg-gray-50 rounded-lg p-4 flex items-start justify-between gap-4 opacity-80">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold">
+                  ✓
+                </div>
+                <div>
+                  <div class="font-medium text-gray-700 line-through">{{ t.title }}</div>
+                  <div class="text-xs text-gray-500 mt-1">{{ t.description || 'Sin descripción' }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Inicio:{{ formatDate(t.createdAt) }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Finaliza:{{formatDate(t.closedAt)}}</div>
+                </div>
+              </div>
+
+              <div class="flex flex-col items-end gap-2 relative">
+                <button title="Abrir opciones" (click)="toggleOptions(t, $event)" class="p-1">
+                  <svg class="w-5 h-5 text-purple-700" viewBox="0 0 24 24" fill="none">
+                    <circle cx="5" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="19" cy="12" r="2" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Menú desplegable de los tres puntos pa editar/eliminar -->
+                
+                <div
+                  *ngIf="openTaskId === t.id"
+                  class="absolute right-0 mt-6 w-28 bg-white border rounded-lg shadow-lg z-50"
+                >
+                  <button
+                    (click)="editTask(t)"
+                    class="block w-full text-left px-4 py-2 text-sm hover:bg-purple-100"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    (click)="deleteTask(t)"
+                    class="block w-full text-left px-4 py-2 text-sm hover:bg-purple-100 text-pink-600"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+
+                <button class="text-sm text-gray-600 underline" (click)="reopenTask(t)">Reabrir</button>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal (crear tarea) -->
+    <div *ngIf="isModalOpen" class="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+      <div class="bg-white rounded-lg shadow-2xl w-[820px] max-w-[95%] border-4 border-blue-200">
+        <div class="p-4 border-b">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-800">Crear tarea</h2>
+            <button (click)="closeCreateModal()" class="text-sm text-gray-600 underline">Atrás</button>
+          </div>
+        </div>
+
+        <form #taskForm="ngForm" (ngSubmit)="saveTask(taskForm)" class="p-6">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Titulo</label>
+              <input
+                name="title"
+                [(ngModel)]="currentTask.title"
+                required
+                maxlength="255"
+                class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+              />
+              <div *ngIf="titleInvalid(taskForm)" class="text-red-600 text-sm mt-1">El título es requerido</div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Descripción</label>
+              <textarea
+                name="description"
+                [(ngModel)]="currentTask.description"
+                rows="3"
+                required
+                class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+              ></textarea>
+              <div *ngIf="descriptionInvalid(taskForm)" class="text-red-600 text-sm mt-1">La descripción es requerida</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Fecha de creación</label>
+                <input
+                  type="date"
+                  name="createdAt"
+                  [(ngModel)]="currentTask.createdAt"
+                  required
+                  class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"
+                />
+              </div>
+              <div>
+              <label class="block text-sm font.medium text-gray-700">Fecha de cierre</label>
+              <input 
+                type="date"
+                name="closedAt"
+                [(ngModel)]="currentTask.closedAt"
+                required
+                class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2"/>
+                </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Estado inicial</label>
+                <select name="status" [(ngModel)]="currentTask.status" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2">
+                  <option value="todo">To-Do</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-end gap-3">
+            <button type="button" class="px-4 py-2 rounded-md border" (click)="closeCreateModal()">Cancelar</button>
+            <button type="submit" class="px-4 py-2 rounded-md bg-pink-600 text-white">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>

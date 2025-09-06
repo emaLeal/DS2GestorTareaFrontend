@@ -1,0 +1,183 @@
+<!-- Barra superior -->
+ <div class="w-full bg-white shadow-md flex items-center justify-between px-6 py-3 border-b border-gray-200"> 
+  <h1 class="text-2xl font-bold text-purple-700">TaskFlow DS</h1>
+ </div>
+
+<div class="flex min-h-screen bg-gradient-to-r from-purple-500 to-pink-500">
+
+  <!-- Lado izquierdo -->
+   
+  <div class="hidden lg:flex w-1/2 items-center justify-center p-10">
+    <div class="text-center text-white space-y-6">
+      <h2 class="text-3xl font-bold leading-snug">
+        Empieza agregando tu primera tarea y mantén tu productividad al máximo.
+      </h2>
+      <img src="assets\img1.png" alt="Registro ilustración" class="w-full max-w-lg mx-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- Lado derecho formulario -->
+  <div class="flex w-full lg:w-1/2 items-center justify-center p-8">
+    <div class="w-full max-w-md bg-white shadow-2xl rounded-3xl p-10">
+      <h2 class="text-lg font-medium text-gray-700 text-center">
+        Bienvenido a <span class="text-purple-600 font-bold">TaskFlow DS</span>
+      </h2>
+      <h3 class="text-4xl font-extrabold text-center mt-2">Registrarse</h3>
+
+      <!-- Formulario -->
+      <form [formGroup]="registerForm" (ngSubmit)="submit()" class="mt-6 space-y-4">
+        
+        <!-- Email -->
+<div>
+  <label class="block text-sm font-medium text-gray-600">Correo electrónico</label>
+  <input type="email" formControlName="email"
+    class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+    placeholder="Digita tu correo" />
+  <p *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')" class="text-red-500 text-xs mt-1">
+    ⚠️ El correo es obligatorio
+  </p>
+  <p *ngIf="registerForm.get('email')?.hasError('email')" class="text-red-500 text-xs mt-1">
+    ⚠️ Ingresa un correo válido
+  </p>
+</div>
+
+<!-- Nombre y Apellido -->
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <label class="block text-sm font-medium text-gray-600">Nombre</label>
+    <input type="text" formControlName="name" (keypress)="onlyLetters($event)"
+      class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      placeholder="Nombre" />
+    <p *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.hasError('required')" class="text-red-500 text-xs mt-1">
+      ⚠️ El nombre es obligatorio
+    </p>
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-600">Apellido</label>
+    <input type="text" formControlName="last_name" (keypress)="onlyLetters($event)"
+      class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      placeholder="Apellido" />
+    <p *ngIf="registerForm.get('last_name')?.touched && registerForm.get('last_name')?.hasError('required')" class="text-red-500 text-xs mt-1">
+      ⚠️ El apellido es obligatorio
+    </p>
+  </div>
+</div>
+
+<!-- Tipo identificación -->
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <label class="block text-sm font-medium text-gray-600">Tipo Identificación</label>
+    <select formControlName="identification_type"
+      class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+      <option value="">Selecciona</option>
+      <option *ngFor="let type of documentTypes" [value]="type.value">{{ type.label }}</option>
+    </select>
+    <p *ngIf="registerForm.get('identification_type')?.touched && registerForm.get('identification_type')?.hasError('required')" class="text-red-500 text-xs mt-1">
+      ⚠️ Selecciona un tipo de documento
+    </p>
+  </div>
+  
+  <div>
+    <label class="block text-sm font-medium text-gray-600">Identificación</label>
+    <input type="number" formControlName="document_id" (input)="onDocumentInputRegister($event)"
+      class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+      placeholder="Id" />
+    <p *ngIf="registerForm.get('document_id')?.touched && registerForm.get('document_id')?.hasError('required')" class="text-red-500 text-xs mt-1">
+      ⚠️ El número de identificación es obligatorio
+    </p>
+  </div>
+</div>
+
+
+<!-- Departamento -->
+   <div>
+    <label class="block text-sm font-medium text-gray-600">Departamento</label>
+    <select formControlName="departaments"
+      class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+      <option value="">Selecciona</option>
+      <option *ngFor="let departament of departaments" [value]="departament.value">{{ departament.label }}</option>
+    </select>
+    <p *ngIf="registerForm.get('departaments')?.touched && registerForm.get('departaments')?.hasError('required')" class="text-red-500 text-xs mt-1">
+      ⚠️ Selecciona un departamento
+    </p>
+   </div>
+
+<!-- Contraseña -->
+<div class="relative">
+  <label class="block text-sm font-medium text-gray-600">Contraseña</label>
+
+  <!-- el type depende de showPassword -->
+  <input 
+    [type]="showPassword ? 'text' : 'password'" 
+    formControlName="password"
+    class="w-full mt-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none pr-10"
+    placeholder="Contraseña"
+    (input)="onPasswordInput()" />
+
+  <!-- Botón para mostrar/ocultar -->
+  <button 
+    type="button" 
+    (click)="togglePasswordVisibility()" 
+    class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700">
+    <!--porfa no juzgar mi forma de implementar el ojo jajajja-->
+    <!-- Ojito abierto -->
+    <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" 
+      class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        d="M2.458 12C3.732 7.943 7.523 5 12 5
+           c4.477 0 8.268 2.943 9.542 7
+           -1.274 4.057-5.065 7-9.542 7
+           -4.477 0-8.268-2.943-9.542-7z"/>
+    </svg>
+
+    <!-- Ojito cerrado -->
+    <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" 
+      class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        d="M13.875 18.825A10.05 10.05 0 0112 19
+           c-4.477 0-8.268-2.943-9.542-7
+           a9.969 9.969 0 012.153-3.43M9.88 9.88
+           a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8"/>
+    </svg>
+  </button>
+
+  <!-- Validación -->
+  <p *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('requisitosNoCumplidos')" 
+     class="text-red-500 text-xs mt-1">
+    ⚠️ La contraseña no cumple con los requisitos
+  </p>
+</div>
+
+<!-- Validaciones de contraseña -->
+<div class="text-xs text-gray-600 space-y-1">
+  <p>Tu contraseña debe tener:</p>
+  <ul class="list-disc list-inside">
+    <li [ngClass]="{ 'text-green-600': requiredpass.length }">8 o más caracteres</li>
+    <li [ngClass]="{ 'text-green-600': requiredpass.hasNumber && requiredpass.hasLower }">Mínimo un número y una letra</li>
+    <li [ngClass]="{ 'text-green-600': requiredpass.hasUpper }">Mínimo una letra mayúscula</li>
+    <li [ngClass]="{ 'text-green-600': requiredpass.hasSpecial }">Mínimo un carácter especial (*._#...)</li>
+  </ul>
+</div>
+
+        <!-- Botón registro -->
+        <button 
+          type="submit" 
+          [disabled]="!isFormReady"
+          [ngClass]="!isFormReady 
+          ? 'bg-gray-400 cursor-not-allowed' 
+          : 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer'"
+        class="w-full py-3 text-white rounded-xl transition font-semibold">
+        Registrarse
+        </button>
+
+        <p class="text-center text-sm mt-4 text-gray-600">
+          ¿Ya tienes una cuenta? 
+          <a href="/login" class="text-indigo-600 font-semibold hover:underline">Inicia sesión</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
