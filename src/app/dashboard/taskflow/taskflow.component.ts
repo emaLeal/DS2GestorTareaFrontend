@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { SearchService } from '../../services/search.service';
 import { NgZone } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
+import { TaskFlowService } from '../../services/taskflow.service';
 
 
 /**
@@ -23,10 +24,11 @@ interface Task {
   id: number;
   title: string;
   description?: string;
-  status: 'todo' | 'in-progress' | 'completed';
+  status: 'To do' | 'in-progress' | 'completed';
   createdAt: string; // ISO string
   findAt: string
   closedAt?: string; // <-- NUEVO: fecha de cierre opcional
+  user?: number;
 }
 
 @Component({
@@ -49,7 +51,7 @@ export class TaskflowComponent implements OnInit {
   currentTask: Partial<Task> = {
     title: '',
     description: '',
-    status: 'todo',
+    status: 'To do',
     createdAt: '',
     findAt: '',
     closedAt: '' // <-- agregado
@@ -61,7 +63,12 @@ export class TaskflowComponent implements OnInit {
   // Simulated auto-increment id
   private nextId = 100;
 
-  constructor(private router: Router, private searchservice: SearchService, private cdr: ChangeDetectorRef) { }
+  constructor(
+    private router: Router, 
+    private searchservice: SearchService, 
+    private cdr: ChangeDetectorRef,
+    // private taskflowService: TaskFlowService,
+  ) { }
 
   ngOnInit(): void {
     this.loadTasksFromBackend(); // carga inicial (simulada)
@@ -90,9 +97,9 @@ export class TaskflowComponent implements OnInit {
     } else {
       // mock tasks (igual al ejemplo que mostraste)
       this.tasks = [
-        { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
-        { id: 2, title: 'Landing Page Design for TravelDays', status: 'todo', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
-        { id: 3, title: 'Presentation on Final Product', status: 'todo', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
+        { id: 1, title: "Attend Nischal's Birthday Party", status: 'To do', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
+        { id: 2, title: 'Landing Page Design for TravelDays', status: 'To do', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
+        { id: 3, title: 'Presentation on Final Product', status: 'To do', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
         { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
         { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: new Date().toISOString() },
         { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: new Date().toISOString() },
@@ -105,7 +112,10 @@ export class TaskflowComponent implements OnInit {
   //    Reemplaza la simulación por: this.tasksService.createTask(task).subscribe(...)
   private saveTaskToBackend(task: Task) {
     // SIMULACIÓN: guardamos en localStorage
-    this.tasks.push(task);
+    console.log("TaskFlow - Guardando tarea (simulado):", task);
+    
+    // this.taskflowService.createTask(task).subscribe();
+    // this.tasks.push(task);
     this.persistLocal();
     // Si el backend devuelve el recurso creado, usa esa respuesta para actualizar el id/otros campos.
   }
@@ -143,7 +153,7 @@ export class TaskflowComponent implements OnInit {
     this.currentTask = {
       title: '',
       description: '',
-      status: 'todo',
+      status: 'To do',
       createdAt: new Date().toISOString().slice(0, 10), // yyyy-mm-dd for input[type=date]
       closedAt: '' // <-- inicializar vacía donde finaliza la tarea
     };
@@ -173,10 +183,11 @@ export class TaskflowComponent implements OnInit {
       id: this.nextId++,
       title: (this.currentTask.title || '').trim(),
       description: (this.currentTask.description || '').trim(),
-      status: (this.currentTask.status as Task['status']) || 'todo',
+      status: (this.currentTask.status as Task['status']) || 'To do',
       createdAt: new Date(this.currentTask.createdAt!).toISOString(),
       findAt: new Date(this.currentTask.createdAt!).toISOString(),
-      closedAt: this.currentTask.closedAt ? new Date(this.currentTask.closedAt).toISOString() : '' // <-- guardamos fecha cierre si existe
+      closedAt: this.currentTask.closedAt ? new Date(this.currentTask.closedAt).toISOString() : '', // <-- 
+      user: 1, //<- cambiar por el usuario loggeado
     };
 
     // Lugar para conectar el backend: saveTaskToBackend (reemplazar)
@@ -231,7 +242,7 @@ export class TaskflowComponent implements OnInit {
   }
 
   reopenTask(task: Task) {
-    task.status = 'todo';
+    task.status = 'To do';
     task.closedAt = ''; // <-- limpiar fecha de cierre al reabrir
     this.updateTaskBackend(task);
   }
@@ -259,9 +270,7 @@ export class TaskflowComponent implements OnInit {
   }
 
   // Filtrar por estado
-  getTasksByStatus(status: 'todo' | 'in-progress' | 'completed') {
-    console.log("Filtrando tareas por estado:", status);
-    console.log(this.filteredTasks.filter((t) => t.status === status));
+  getTasksByStatus(status: 'To do' | 'in-progress' | 'completed') {
     
     
     return this.filteredTasks.filter((t) => t.status === status);

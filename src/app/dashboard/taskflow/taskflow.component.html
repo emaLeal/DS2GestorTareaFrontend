@@ -20,7 +20,7 @@
       <div
         class="bg-white rounded-xl p-5 shadow-sm border border-gray-100"
         (dragover)="allowDrop($event)"
-        (drop)="onDrop($event, 'todo')"
+        (drop)="onDrop($event, 'To do')"
       >
         <div class="flex items-center mb-4">
           <div class="flex items-center gap-2 text-sm text-pink-600">
@@ -34,7 +34,7 @@
         </div>
 
         <div class="space-y-4 min-h-[200px]">
-          <ng-container *ngFor="let t of getTasksByStatus('todo'); trackBy: trackByTaskId">
+          <ng-container *ngFor="let t of getTasksByStatus('To do'); trackBy: trackByTaskId">
             <!--Este atributo HTML (draggable="true") le dice al navegador que ese elemento se puede arrastrar con el mouse.-->
             <div 
               class="bg-purple-50 rounded-lg p-4 flex items-start justify-between gap-4 shadow-sm cursor-grab hover:shadow-md"
@@ -43,7 +43,7 @@
             >
               <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-purple-400 flex items-center justify-center text-white font-semibold">
-                  {{ t.title?.charAt(0)?.toUpperCase() }}
+                  {{ t.title ? t.title.charAt(0).toUpperCase() : '' }}
                 </div>
                 <div>
                   <div class="font-medium text-gray-800">{{ t.title }}</div>
@@ -112,7 +112,7 @@
             ><!--Muestra los detalles de la tarea-->
               <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-semibold">
-                  {{ t.title?.charAt(0)?.toUpperCase() }}
+               {{ t.title ? t.title.charAt(0).toUpperCase() : '' }}
                 </div>
                 <div>
                   <div class="font-medium text-gray-800">{{ t.title }}</div>
@@ -284,7 +284,7 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700">Estado inicial</label>
                 <select name="status" [(ngModel)]="currentTask.status" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm p-2">
-                  <option value="todo">To-Do</option>
+                  <option value="To do">To-Do</option>
                   <option value="in-progress">In Progress</option>
                   <option value="completed">Completed</option>
                 </select>
