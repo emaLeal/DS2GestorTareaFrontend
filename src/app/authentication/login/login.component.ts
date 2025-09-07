@@ -61,7 +61,7 @@ export class LoginComponent {
       this.loginError = '';
       this.isLoggingIn = true;
       this._authService.login(login).subscribe(res => {
-        console.log(res)
+        this._authService.getProfile()
         this._router.navigate(['/dashboard'])
       })
 

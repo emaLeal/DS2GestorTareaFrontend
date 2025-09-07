@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Login, User } from './auth.types';
 import { environment } from '../../environments/environment.development';
-import { catchError, Observable, throwError,tap } from 'rxjs';
+import { catchError, Observable, throwError, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,14 +18,18 @@ export class AuthService {
     const url = environment.baseUrl + environment.authentication.login
     return this._httpClient.post(url, formData)
       .pipe(
-        tap((response:any)=> {
+        tap((response: any) => {
           console.log('Login successful, response:', response.user);
-          
+
           localStorage.setItem('token', response.access);
           localStorage.setItem('user_data', JSON.stringify(response.user));
         }),
         catchError(this.handleError)
       );
+  }
+  resetPassword(email: string): Observable<any> {
+    const url = environment.baseUrl + environment.authentication.resetPassword
+    return this._httpClient.post(url, { email })
   }
 
   register(userForm: User): Observable<any> {
@@ -53,7 +57,28 @@ export class AuthService {
     });
   }
 
-  private handleError(error: HttpErrorResponse) {
+  confirmResetPassword(form: any) {
+    const body = form
+    delete body.confirmPassword
+    const url = environment.baseUrl + environment.authentication.confirmResetPassword + body.token
+    console.log(url)
+    return this._httpClient.post(url, body)
+  }
+
+  getProfile() {
+    const url = environment.baseUrl + environment.authentication.profile
+    return this._httpClient.get(url, { headers: this.getAuthHeaders() }).subscribe({
+      next: (response) => {
+        localStorage.setItem('user', JSON.stringify(response))
+      },
+      error: (err) => {
+        console.log(err)
+      }
+    })
+  }
+
+
+  handleError(error: HttpErrorResponse) {
     let errorMessage = 'An error occurred';
     if (error.error instanceof ErrorEvent) {
       // Client-side error

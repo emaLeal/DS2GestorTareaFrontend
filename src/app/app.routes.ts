@@ -17,7 +17,8 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' }, // carga login de entrada
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'change-password', component: ChangePasswordComponent }, // ruta para cambiar contraseña
+  { path: 'change-password/:token', component: ChangePasswordComponent }, // ruta para cambiar contraseña
+  { path: 'reset-password', component: ResetPasswordComponent },
 
   {
     path: 'dashboard', component: DashboardComponent, // Ruta protegida, solo accesible si el usuario está autenticado
