@@ -1,1 +1,89 @@
-<p>profile works!</p>
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+  <div class="w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden">
+    
+    <!-- Header -->
+    <div class="bg-indigo-600 px-8 py-6 flex items-center justify-between">
+      <h2 class="text-2xl font-bold text-white">Perfil de Usuario</h2>
+      <a 
+        routerLink="/dashboard/taskflow"
+        class="bg-white/20 px-4 py-2 text-white rounded-lg hover:bg-white/30 transition inline-block text-center">
+        Atrás
+        </a>
+
+    </div>
+
+    <!-- Content -->
+    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Nombre -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">person</span>
+          Nombre
+        </label>
+        <input type="text" [value]="user.name" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+
+      <!-- Apellidos -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">person</span>
+          Apellidos
+        </label>
+        <input type="text" [value]="user.last_name" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+
+      <!-- Email -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">mail</span>
+          Email
+        </label>
+        <input type="text" [value]="user.email" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+
+      <!-- Identificación -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">fingerprint</span>
+          Identificación
+        </label>
+        <input type="text" [value]="user.id" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+
+      <!-- Tipo de Identificación -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">fingerprint</span>
+          Tipo de Identificación
+        </label>
+        <input type="text" [value]="user.identification_type" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+
+      <!-- Departamento -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">business</span>
+          Departamento
+        </label>
+        <input type="text" [value]="user.departaments" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+
+      <!-- Rol -->
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
+          <span class="material-icons text-indigo-500 text-base">supervisor_account</span>
+          Rol
+        </label>
+        <input type="text" [value]="user.rol" readonly
+          class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,9 +1,11 @@
-import { Component,OnInit } from '@angular/core';
-import {FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../auth.service';
+import { catchError, tap } from 'rxjs';
 
 
 @Component({
@@ -13,7 +15,8 @@ import { RouterModule } from '@angular/router';
   styleUrl: './change-password.component.css'
 })
 export class ChangePasswordComponent {
- step: number = 1;// Paso actual (1 = correo, 2 = nueva contraseña)
+
+
 
   formEmail!: FormGroup;
   formPassword!: FormGroup;
@@ -27,66 +30,43 @@ export class ChangePasswordComponent {
     hasNumber: false,
     hasSpecial: false,
   };
-  loginError: string = '';
 
   constructor(
-    private fb: FormBuilder,
-  //pivate authService: AuthService, // cuando este el servicio
-    private router: Router
-  ) {}
-
+    private _fb: FormBuilder,
+    private _authService: AuthService,
+    private _route: ActivatedRoute,
+    private _router: Router
+  ) { }
   ngOnInit(): void {
     // Formulario de email
-    this.formEmail = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
+    const token = this._route.snapshot.paramMap.get('token');
 
     // Formulario de nueva contraseña
-    this.formPassword = this.fb.group({
+    this.formPassword = this._fb.group({
       password: ['', [Validators.required, this.validatePassword()]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required]],
+      token: [token]
+
     }, { validators: this.passwordsMatchValidator });
-  }
-
-  // Enviar correo para reset
-  submitEmail(): void {
-    if (this.formEmail.valid) {
-      const email = this.formEmail.value.email;
-      console.log('📩 Enviando email al backend:', email);
-
-      // Conectar con backend
-      /*
-      this.authService.requestResetPassword(email).subscribe({
-        next: (res) => {
-          console.log(res);
-          this.step = 2; // avanzar a paso de contraseña
-        },
-        error: (err) => {
-          console.error(err);
-          this.loginError = 'Error al enviar el correo. Intenta de nuevo.';
-        }
-      });*/
-    }
   }
 
   // Guardar nueva contraseña
   submitPassword(): void {
     if (this.formPassword.valid) {
       const payload = this.formPassword.value;
-      console.log('🔑 Enviando nueva contraseña al backend:', payload);
 
-      // Conectar con backend cuando este (yo ni idea como pero creo q asi ajjaja )
-      /*
-      this.authService.confirmResetPassword(payload).subscribe({
-        next: (res) => {
+      this._authService.confirmResetPassword(payload).subscribe({
+        next: (res: any) => {
           console.log(res);
-          this.router.navigate(['/login']);
+          if (res.status === 'OK') {
+            alert('Cambiaste exitosamente la contraseña')
+            this._router.navigate(['/login']);
+          }
         },
         error: (err) => {
           console.error(err);
-          this.loginError = 'Error al cambiar la contraseña.';
         }
-      });*/
+      });
     }
   }
 
@@ -118,5 +98,6 @@ export class ChangePasswordComponent {
       return isValid ? null : { requisitosNoCumplidos: true };
     };
   }
+
 }
 
