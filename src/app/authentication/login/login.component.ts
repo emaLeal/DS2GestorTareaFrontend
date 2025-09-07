@@ -57,19 +57,33 @@ export class LoginComponent {
   submit() {
     if (this.loginForm?.valid) {
       const login: Login = this.loginForm?.value;
-      
+
       this.loginError = '';
       this.isLoggingIn = true;
-      this._authService.login(login).subscribe(res => {
-        this._authService.getProfile()
-        this._router.navigate(['/dashboard'])
-      })
-
+      this._authService.login(login).subscribe({
+        next: () => {
+          this._authService.requestProfile().subscribe({
+            next: () => {
+              this._router.navigate(['/dashboard']);
+            },
+            error: () => {
+              this.loginError = 'Error cargando perfil';
+              this.isLoggingIn = false;
+            }
+          });
+        },
+        error: () => {
+          this.loginError = 'Credenciales incorrectas';
+          this.isLoggingIn = false;
+        }
+      });
     }
   }
+
   get isFormReady(): boolean {
     return this.loginForm.valid && Object.values(this.loginForm.controls).every(c => c.touched);
   }
+
   onlyLetters(event: KeyboardEvent): void {
     const pattern = /[a-zA-Z\s]/;
     const inputChar = String.fromCharCode(event.charCode);

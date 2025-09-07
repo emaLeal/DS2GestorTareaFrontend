@@ -65,16 +65,18 @@ export class AuthService {
     return this._httpClient.post(url, body)
   }
 
-  getProfile() {
+  requestProfile() {
     const url = environment.baseUrl + environment.authentication.profile
-    return this._httpClient.get(url, { headers: this.getAuthHeaders() }).subscribe({
-      next: (response) => {
-        localStorage.setItem('user', JSON.stringify(response))
-      },
-      error: (err) => {
-        console.log(err)
-      }
-    })
+    return this._httpClient.get(url, { headers: this.getAuthHeaders() }).pipe(
+      tap((response) => {
+        localStorage.setItem('user', JSON.stringify(response));
+      })
+    );
+  }
+
+  getProfile() {
+    const user = localStorage.getItem('user')
+    return JSON.parse(localStorage.getItem('user')!)
   }
 
 

@@ -4,6 +4,7 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Output, EventEmitter } from '@angular/core';
 import { SearchService } from '../services/search.service';
+import { AuthService } from '../authentication/auth.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -16,14 +17,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isMenuOpen = false;
   searchTerm: string = '';
   sidebarCollapsed = false;
-
+  items: any[] = []
 
   constructor(
     private _searchService: SearchService,
+    private _authService: AuthService,
     private _router: Router
   ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.items = [
+      { label: 'Tablero de inicio', icon: 'dashboard', route: '/dashboard/home-board' },
+      { label: 'Mis tareas', icon: 'check_circle', route: '/dashboard/taskflow' },
+      { label: 'Ayuda', icon: 'help_outline', route: '/dashboard/help' }
+    ]
+    const user = this._authService.getProfile()
+    // En caso de no ser Gerente, se oculta el primer elemento del menu
+    if (user.role_id !== 1) {
+      this.items.shift()
+    }
+  }
+
 
   ngOnDestroy(): void { }
 
