@@ -22,6 +22,14 @@ export class AuthService {
       );
   }
 
+  resetPassword(email: string): Observable<any> {
+    const url = environment.baseUrl + environment.authentication.resetPassword
+    return this._httpClient.post(url, email)
+    .pipe(
+      catchError(this.handleError)
+    )
+  }
+
   register(userForm: User): Observable<any> {
     const url: string = environment.baseUrl + environment.authentication.register;
     return this._httpClient
