@@ -29,6 +29,8 @@ interface Task {
   findAt: string
   closedAt?: string; // <-- NUEVO: fecha de cierre opcional
   user?: number;
+  priority: string, // ✅ nueva propiedad
+  tags: string[]; // ✅ nueva propiedad
 }
 
 @Component({
@@ -54,7 +56,9 @@ export class TaskflowComponent implements OnInit {
     status: 'To do',
     createdAt: '',
     findAt: '',
-    closedAt: '' // <-- agregado
+    closedAt: '',// <-- agregado
+    priority: 'medium', // ✅ nueva propiedad
+    tags: []
   };
 
   // Drag data para mover la tarea 
@@ -78,6 +82,29 @@ export class TaskflowComponent implements OnInit {
         t.title.toLowerCase().includes(term.toLowerCase())
       );
     });
+  }
+
+  tagsInput: string = '';
+
+addTag() {
+  console.log("Adding tag:", this.currentTask.tags);
+
+  const newTag = this.tagsInput.trim();
+
+  if (newTag !== '') {
+    // Crear un nuevo array con el tag nuevo
+    this.currentTask.tags = [...(this.currentTask.tags || []), newTag];
+
+    // Eliminar duplicados
+    this.currentTask.tags = [...new Set(this.currentTask.tags)];
+
+    // Limpiar el input
+    this.tagsInput = '';
+  }
+}
+
+  removeTag(index: number) {
+    this.currentTask.tags?.splice(index, 1);
   }
 
   // -------------------------
@@ -118,7 +145,7 @@ export class TaskflowComponent implements OnInit {
         error: (err) => {
           console.error("Error al obtener tareas:", err);
         }
-      });
+    });
   }
 
   // 3) updateTaskBackend(task)
@@ -186,6 +213,8 @@ export class TaskflowComponent implements OnInit {
       findAt: new Date(this.currentTask.createdAt!).toISOString(),
       closedAt: this.currentTask.closedAt ? new Date(this.currentTask.closedAt).toISOString() : '', // <-- 
       user: 1, //<- cambiar por el usuario loggeado
+      priority: this.currentTask.priority || 'medium', 
+      tags: this.currentTask.tags || [],
     };
 
     // Lugar para conectar el backend: saveTaskToBackend (reemplazar)
