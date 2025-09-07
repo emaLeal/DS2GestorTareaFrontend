@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Login, User } from './auth.types';
 import { environment } from '../../environments/environment.development';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, throwError,tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,12 @@ export class AuthService {
     const url = environment.baseUrl + environment.authentication.login
     return this._httpClient.post(url, formData)
       .pipe(
+        tap((response:any)=> {
+          console.log('Login successful, response:', response.user);
+          
+          localStorage.setItem('token', response.access);
+          localStorage.setItem('user_data', JSON.stringify(response.user));
+        }),
         catchError(this.handleError)
       );
   }

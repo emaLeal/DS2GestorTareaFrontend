@@ -48,7 +48,7 @@
                 <div>
                   <div class="font-medium text-gray-800">{{ t.title }}</div>
                   <div class="text-xs text-gray-500 mt-1">{{ t.description || 'Sin descripción' }}</div>
-                  <div class="text-xs text-gray-400 mt-2">Inicio:{{ formatDate(t.createdAt) }}</div>
+                  <div class="text-xs text-gray-400 mt-2">Inicio:{{ formatDate(t.findAt) }}</div>
                   <div class="text-xs text-gray-400 mt-2">Finaliza:{{formatDate(t.closedAt)}}</div>
                 </div>
               </div>

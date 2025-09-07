@@ -67,7 +67,7 @@ export class TaskflowComponent implements OnInit {
     private router: Router, 
     private searchservice: SearchService, 
     private cdr: ChangeDetectorRef,
-    // private taskflowService: TaskFlowService,
+    private taskflowService: TaskFlowService,
   ) { }
 
   ngOnInit(): void {
@@ -89,35 +89,36 @@ export class TaskflowComponent implements OnInit {
     console.log("TaskFlow - Cargando tareas (simulado)...");
 
     const saved = localStorage.getItem('taskflow_tasks_v1');
-    if (saved) {
-      this.tasks = JSON.parse(saved);
-      // update nextId
-      const max = this.tasks.reduce((m, t) => Math.max(m, t.id), 0);
-      this.nextId = max + 1;
-    } else {
-      // mock tasks (igual al ejemplo que mostraste)
-      this.tasks = [
-        { id: 1, title: "Attend Nischal's Birthday Party", status: 'To do', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
-        { id: 2, title: 'Landing Page Design for TravelDays', status: 'To do', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
-        { id: 3, title: 'Presentation on Final Product', status: 'To do', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
-        { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: '' },
-        { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: new Date().toISOString() },
-        { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date().toISOString(), findAt: new Date().toISOString(), closedAt: new Date().toISOString() },
-      ];
-      this.persistLocal();
-    }
+    this.taskflowService.getTaskFlow().subscribe({
+        next: (data: any) => {
+          this.tasks = data; // ✅ Guardar en la variable del componente
+          this.filteredTasks = [...this.tasks]; // Actualizar la lista filtrada
+          console.log("Tasks cargadas en el componente:", this.tasks);
+          
+        },
+        error: (err) => {
+          console.error("Error al obtener tareas:", err);
+        }
+      })
+
   }
 
   // 2) saveTaskToBackend(task)
   //    Reemplaza la simulación por: this.tasksService.createTask(task).subscribe(...)
   private saveTaskToBackend(task: Task) {
-    // SIMULACIÓN: guardamos en localStorage
     console.log("TaskFlow - Guardando tarea (simulado):", task);
-    
-    // this.taskflowService.createTask(task).subscribe();
-    // this.tasks.push(task);
-    this.persistLocal();
-    // Si el backend devuelve el recurso creado, usa esa respuesta para actualizar el id/otros campos.
+    this.taskflowService.createTask(task).subscribe({
+        next: (data: any) => {
+          console.log("Tarea creada en backend:", data);
+          
+          this.tasks = [...this.tasks,data]; // ✅ Guardar en la variable del componente
+          this.filteredTasks = [...this.tasks]; // Actualizar la lista filtrada
+          
+        },
+        error: (err) => {
+          console.error("Error al obtener tareas:", err);
+        }
+      });
   }
 
   // 3) updateTaskBackend(task)
@@ -125,15 +126,12 @@ export class TaskflowComponent implements OnInit {
   private updateTaskBackend(task: Task) {
     const idx = this.tasks.findIndex(t => t.id === task.id);
     if (idx > -1) {
-      console.log(idx);
-
-      console.log("TaskFlow - Task actualizada:", this.tasks);
-
+      console.log("TaskFlow - Actualizando tarea (simulado):", task);
+      
+      this.taskflowService.updateTask(task.id, task).subscribe();
       this.tasks[idx] = { ...task };
       this.filteredTasks = [...this.tasks];
       this.persistLocal();
-      this.cdr.detectChanges();
-
     }
   }
 
@@ -213,10 +211,10 @@ export class TaskflowComponent implements OnInit {
   }
 
   onDrop(event: DragEvent, status: Task['status']) {
-    
-
     event.preventDefault();
     const idStr = event.dataTransfer?.getData('text/plain');
+    console.log("onDrop - idStr:", idStr);
+    
     const id = idStr ? parseInt(idStr, 10) : this.draggedTaskId;
     if (!id) return;
     const task = this.tasks.find(t => t.id === id);
@@ -243,7 +241,7 @@ export class TaskflowComponent implements OnInit {
 
   reopenTask(task: Task) {
     task.status = 'To do';
-    task.closedAt = ''; // <-- limpiar fecha de cierre al reabrir
+    // task.closedAt = ''; // <-- limpiar fecha de cierre al reabrir
     this.updateTaskBackend(task);
   }
 
@@ -264,7 +262,9 @@ export class TaskflowComponent implements OnInit {
 
   deleteTask(task: Task) {
     this.tasks = this.tasks.filter(t => t.id !== task.id);
-    this.persistLocal();
+    this.taskflowService.deleteTask(task.id).subscribe();
+    console.log("TaskFlow - Tarea eliminada:", task);
+    
     this.filteredTasks = [...this.tasks];
     this.openTaskId = null;
   }
