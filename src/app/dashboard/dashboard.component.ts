@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Output, EventEmitter } from '@angular/core';
 import { SearchService } from '../services/search.service';
@@ -16,28 +16,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
   isMenuOpen = false;
   searchTerm: string = '';
   sidebarCollapsed = false;
-  
 
-  constructor(private searchService: SearchService) {}
 
-  ngOnInit(): void {}
+  constructor(
+    private _searchService: SearchService,
+    private _router: Router
+  ) { }
 
-  ngOnDestroy(): void {}
+  ngOnInit(): void { }
+
+  ngOnDestroy(): void { }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
   }
   toggleSidebar() {
-  this.sidebarCollapsed = !this.sidebarCollapsed;
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
   onSearch(event: any): void {
     const term = event.target.value.toLowerCase();
-    this.searchService.setSearchTerm(term);
-    
+    this._searchService.setSearchTerm(term);
+
   }
 
   logout(): void {
-    console.log('Cerrar sesión');
-    // TODO: desconectar sesión desde backend
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    this._router.navigate(['/login'])
   }
 }
