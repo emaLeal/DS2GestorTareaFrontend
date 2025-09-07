@@ -40,6 +40,10 @@ export class TaskFlowService {
     constructor(private http: HttpClient) { }
 
     createTask(data: any) {
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        data.user = userData.id;
+        console.log("TaskFlowService - createTask called with data:", data);
+        
         const url = environment.baseUrl + environment.taskFlow.createTask;
         return this.http.post(url, data, {
             headers: this.getAuthHeaders()
