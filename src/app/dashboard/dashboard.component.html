@@ -37,7 +37,7 @@
       <!-- Menú desplegable -->
       <div
         *ngIf="isMenuOpen"
-        class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+        class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10 mx-auto"
       >
         <a routerLink="/dashboard/profile" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100">
           <span class="material-icons text-indigo-600">person</span>
@@ -68,14 +68,11 @@
       (click)="toggleSidebar()"
       class="md:hidden p-3 text-white focus:outline-none"
     >
-    
       <span class="material-icons">menu</span>
     </button>
 
-
-
     <!-- Navegación -->
-     <p class="text-center py-4 font-bold text-lg" *ngIf="!sidebarCollapsed">Menu</p>
+    <p class="text-center py-4 font-bold text-lg" *ngIf="!sidebarCollapsed">Menu</p>
     <nav class="flex-1 px-4">
       <ul class="space-y-2">
         <li>

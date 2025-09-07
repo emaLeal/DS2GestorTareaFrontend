@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { SearchService } from '../../services/search.service';
+
+// Importar Chart.js
+import { Chart } from 'chart.js/auto';
 
 interface Task {
   id: number;
@@ -20,7 +23,7 @@ interface Task {
   templateUrl: './home-board.component.html',
   styleUrls: ['./home-board.component.css'],
 })
-export class HomeBoardComponent implements OnInit, OnDestroy {
+export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
   searchTerm: string = '';
@@ -29,19 +32,28 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   private taskSubscription?: Subscription;
 
-  constructor(private router: Router 
-    , private searchService: SearchService
+  constructor(
+    private router: Router,
+    private searchService: SearchService
   ) {}
 
   ngOnInit(): void {
     // Cargar tareas iniciales
     this.loadMockTasks();
     this.filteredTasks = [...this.tasks];
-    this.searchService.search$.subscribe(term => {
-    this.filteredTasks = this.tasks.filter((t) =>
-      t.title.toLowerCase().includes(term)
-    );
-  });
+
+    // FUTURO: Aquí se conectará con el backend para obtener tareas
+    // this.taskService.getTasks().subscribe(data => this.tasks = data);
+
+    this.searchService.search$.subscribe((term) => {
+      this.filteredTasks = this.tasks.filter((t) =>
+        t.title.toLowerCase().includes(term)
+      );
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.initCharts(); // Inicializar gráficos después de renderizar la vista
   }
 
   ngOnDestroy(): void {
@@ -49,10 +61,11 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
       this.taskSubscription.unsubscribe();
     }
   }
+
   openTaskId: number | null = null;
 
   toggleTaskOptions(task: any) {
-  this.openTaskId = this.openTaskId === task.id ? null : task.id;
+    this.openTaskId = this.openTaskId === task.id ? null : task.id;
   }
 
   // simula carga de tareas hasta que no haya backend 
@@ -66,10 +79,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
       { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
     ];
   }
-  
 
-    
-  
   // Filtrar por estado
   getTasksByStatus(status: 'todo' | 'in-progress' | 'completed') {
     return this.filteredTasks.filter((t) => t.status === status);
@@ -97,9 +107,49 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   // Cerrar sesión
   logout(): void {
     console.log('Cerrar sesión');
-    
     this.router.navigate(['/login']);
   }
 
-  
+  // ==========================
+  // ESTADÍSTICAS Y GRÁFICOS
+  // ==========================
+  initCharts(): void {
+    // Conteos simulados (aquí luego conectas con backend)
+    const totalTodo = this.tasks.filter((t) => t.status === 'todo').length;
+    const totalProgress = this.tasks.filter((t) => t.status === 'in-progress').length;
+    const totalCompleted = this.tasks.filter((t) => t.status === 'completed').length;
+
+    // Gráfico circular por estado
+    new Chart('statusChart', {
+      type: 'doughnut',
+      data: {
+        labels: ['Por hacer', 'En progreso', 'Completadas'],
+        datasets: [
+          {
+            data: [totalTodo, totalProgress, totalCompleted],
+            backgroundColor: ['#f87171', '#facc15', '#4ade80'],
+          },
+        ],
+      },
+    });
+
+    // Gráfico de completadas por semana (simulado)
+    new Chart('weeklyChart', {
+      type: 'bar',
+      data: {
+        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+        datasets: [
+          {
+            label: 'Finalizadas',
+            data: [2, 5, 3, 6], // Simulado, luego traer del backend
+            backgroundColor: '#4f46e5',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+      },
+    });
+  }
 }
