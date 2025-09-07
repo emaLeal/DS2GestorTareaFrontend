@@ -36,7 +36,7 @@
       </div>
 
       <div class="space-y-4 min-h-[200px]">
-        <ng-container *ngFor="let t of getTasksByStatus('todo'); trackBy: trackByTaskId">
+        <ng-container *ngFor="let t of getTasksByStatus('To do'); trackBy: trackByTaskId">
           <!--Este atributo HTML (draggable="true") le dice al navegador que ese elemento se puede arrastrar con el mouse.-->
           <div 
             class="bg-purple-50 rounded-lg p-4 flex items-start justify-between gap-4 shadow-sm cursor-grab hover:shadow-md"
