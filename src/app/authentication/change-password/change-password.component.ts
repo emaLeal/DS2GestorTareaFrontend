@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import {Router} from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 
 @Component({
@@ -23,14 +24,13 @@ export class ChangePasswordComponent {
   
 
   constructor(
-    private fb: FormBuilder,
-  //pivate authService: AuthService, // cuando este el servicio
-    private router: Router
+    private _fb: FormBuilder,
+    private _authService: AuthService,
   ) {}
 
   ngOnInit(): void {
     // Formulario de email
-    this.formEmail = this.fb.group({
+    this.formEmail = this._fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
 
@@ -42,18 +42,9 @@ export class ChangePasswordComponent {
       const email = this.formEmail.value.email;
       console.log('📩 Enviando email al backend:', email);
 
-      // Conectar con backend
-      /*
-      this.authService.requestResetPassword(email).subscribe({
-        next: (res) => {
-          console.log(res);
-          this.step = 2; // avanzar a paso de contraseña
-        },
-        error: (err) => {
-          console.error(err);
-          this.loginError = 'Error al enviar el correo. Intenta de nuevo.';
-        }
-      });*/
+     this._authService.resetPassword(email).subscribe(res => {
+      console.log(res)
+     })
     }
   }
 

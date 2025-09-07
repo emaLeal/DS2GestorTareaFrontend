@@ -24,10 +24,10 @@ export class AuthService {
 
   resetPassword(email: string): Observable<any> {
     const url = environment.baseUrl + environment.authentication.resetPassword
-    return this._httpClient.post(url, email)
-    .pipe(
-      catchError(this.handleError)
-    )
+    return this._httpClient.post(url, { email })
+      .pipe(
+        catchError(this.handleError)
+      )
   }
 
   register(userForm: User): Observable<any> {
