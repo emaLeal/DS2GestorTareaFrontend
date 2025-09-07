@@ -9,6 +9,7 @@ import { HomeBoardComponent } from './dashboard/home-board/home-board.component'
 import { EditTaskComponent } from './dashboard/edit-task/edit-task.component';
 import { HelpComponent } from './dashboard/help/help.component';
 import { ProfileComponent } from './profile/profile.component';
+import { ResetPasswordComponent } from './authentication/reset-password/reset-password.component';
 
 
 export const routes: Routes = [
@@ -16,8 +17,8 @@ export const routes: Routes = [
 { path: '', redirectTo: 'login', pathMatch: 'full' }, // carga login de entrada
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'change-password', component: ChangePasswordComponent }, // ruta para cambiar contraseña
-
+  { path: 'change-password', component: ChangePasswordComponent }, // ruta para validar email pal cambio de contraseña 
+  { path: 'reset-password', component: ResetPasswordComponent}, // ruta para el cambio de contraseña
   { path: 'dashboard', component: DashboardComponent , // Ruta protegida, solo accesible si el usuario está autenticado
  //luego se agrega canActivate:[Autenticated] para direccionar la ruta segun el rol del usuario 
  children : [ 
