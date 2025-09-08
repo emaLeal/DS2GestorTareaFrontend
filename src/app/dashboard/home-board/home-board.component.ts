@@ -85,7 +85,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
-    this._taskFlowService.getTaskFlow().subscribe({
+    this._taskService.getAllTasks().subscribe({
       next: (res: any) => {
         this.tasks = res.map((task: any) => task)
         this.filteredTasks = [...this.tasks];
