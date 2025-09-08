@@ -7,6 +7,7 @@ import { SearchService } from '../../services/search.service';
 
 // Importar Chart.js
 import { Chart } from 'chart.js/auto';
+import { TaskService } from '../../services/task.service';
 
 interface Task {
   id: number;
@@ -33,9 +34,10 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
   private taskSubscription?: Subscription;
 
   constructor(
-    private router: Router,
-    private searchService: SearchService
-  ) {}
+    private _router: Router,
+    private _searchService: SearchService,
+    private _taskService: TaskService
+  ) { }
 
   ngOnInit(): void {
     // Cargar tareas iniciales
@@ -45,7 +47,8 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
     // FUTURO: Aquí se conectará con el backend para obtener tareas
     // this.taskService.getTasks().subscribe(data => this.tasks = data);
 
-    this.searchService.search$.subscribe((term) => {
+
+    this._searchService.search$.subscribe((term) => {
       this.filteredTasks = this.tasks.filter((t) =>
         t.title.toLowerCase().includes(term)
       );
@@ -70,14 +73,21 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
-    this.tasks = [
-      { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date() },
-      { id: 2, title: 'Landing Page Design for TravelDays', status: 'todo', createdAt: new Date() },
-      { id: 3, title: 'Presentation on Final Product', status: 'todo', createdAt: new Date() },
-      { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date() },
-      { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date() },
-      { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
-    ];
+    this._taskService.getAllTasks().subscribe({
+      next: (res: any) => {
+        this.tasks = res.map((task: any) => task)
+      }, error: (err) => {
+        console.log(err)
+      }
+    })
+    // this.tasks = [
+    //   { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date() },
+    //   { id: 2, title: 'Landing Page Design for TravelDays', status: 'todo', createdAt: new Date() },
+    //   { id: 3, title: 'Presentation on Final Product', status: 'todo', createdAt: new Date() },
+    //   { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date() },
+    //   { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date() },
+    //   { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
+    // ];
   }
 
   // Filtrar por estado
@@ -107,7 +117,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
   // Cerrar sesión
   logout(): void {
     console.log('Cerrar sesión');
-    this.router.navigate(['/login']);
+    this._router.navigate(['/login']);
   }
 
   // ==========================
@@ -118,7 +128,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
     const totalTodo = this.tasks.filter((t) => t.status === 'todo').length;
     const totalProgress = this.tasks.filter((t) => t.status === 'in-progress').length;
     const totalCompleted = this.tasks.filter((t) => t.status === 'completed').length;
-
+    console.log(totalTodo, totalProgress, totalCompleted)
     // Gráfico circular por estado
     new Chart('statusChart', {
       type: 'doughnut',
