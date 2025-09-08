@@ -61,7 +61,16 @@
     <p class="text-center py-4 font-bold text-lg" *ngIf="!sidebarCollapsed">Menu</p>
     <nav class="flex-1 px-4">
       <ul class="space-y-2">
+        @for (item of items; track item) {
         <li>
+          <a routerLink={{item.route}} routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/25">
+            <span class="material-icons text-lg">{{item.icon}}</span>
+            <span *ngIf="!sidebarCollapsed">{{item.label}}</span>
+          </a>
+        </li>
+        }
+        <!-- <li>
           <a routerLink="/dashboard/home-board" routerLinkActive="bg-white/20"
             class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/25">
             <span class="material-icons text-lg">dashboard</span>
@@ -83,7 +92,7 @@
             <span class="material-icons text-lg">help_outline</span>
             <span *ngIf="!sidebarCollapsed">Ayuda</span>
           </a>
-        </li>
+        </li> -->
       </ul>
     </nav>
   </aside>
