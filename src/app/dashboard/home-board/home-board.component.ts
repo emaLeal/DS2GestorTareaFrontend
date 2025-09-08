@@ -79,9 +79,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   openTaskId: number | null = null;
 
-  toggleTaskOptions(task: any) {
-    this.openTaskId = this.openTaskId === task.id ? null : task.id;
-  }
+ 
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
