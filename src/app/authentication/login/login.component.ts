@@ -63,23 +63,6 @@ export class LoginComponent implements OnInit {
 
       this.loginError = '';
       this.isLoggingIn = true;
-<<<<<<< HEAD
-      this._authService.login(login).subscribe({
-        next: () => {
-          this._authService.requestProfile().subscribe({
-            next: () => {
-              this._router.navigate(['/dashboard']);
-            },
-            error: () => {
-              this.loginError = 'Error cargando perfil';
-              this.isLoggingIn = false;
-            }
-          });
-        },
-        error: () => {
-          this.loginError = 'Credenciales incorrectas';
-          this.isLoggingIn = false;
-=======
 
       this._authService.login(login).subscribe({
         next: (response: any) => {
@@ -109,7 +92,6 @@ export class LoginComponent implements OnInit {
           this.isLoggingIn = false;
           this.loginError = '¡Fallo al iniciar sesión! Verifica tu documento y contraseña.';
           console.error(err);
->>>>>>> dedf503b139259af00a674dcd6c0609040e4b09a
         }
       });
     }
