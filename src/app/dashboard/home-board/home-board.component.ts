@@ -41,8 +41,8 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   constructor(
     private _router: Router,
     private _searchService: SearchService,
-    private _taskService: TaskService,
-    private _taskFlowService: TaskFlowService
+    private _taskFlowService: TaskFlowService,
+    private _taskService: TaskService
   ) { }
 
   ngOnInit(): void {
