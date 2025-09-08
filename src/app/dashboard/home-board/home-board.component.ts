@@ -7,8 +7,8 @@ import { SearchService } from '../../services/search.service';
 
 // Importar Chart.js
 import { Chart } from 'chart.js/auto';
-import { TaskService } from '../../services/task.service';
 import { TaskFlowService } from '../../services/taskflow.service';
+import { TaskService } from '../../services/task.service';
 
 interface Task {
   id: number;
@@ -85,7 +85,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
-    this._taskService.getAllTasks().subscribe({
+    this._taskFlowService.getTaskFlow().subscribe({
       next: (res: any) => {
         this.tasks = res.map((task: any) => task)
         this.filteredTasks = [...this.tasks];
@@ -215,3 +215,4 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   }
 
 }
+

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export interface TaskFlow {
     id?: number;
@@ -42,7 +43,7 @@ export class TaskFlowService {
         });
     }
 
-    updateTask(id: number, data: any): any {
+    updateTask(id: number, data: any): Observable<any> {
         const url = `${environment.baseUrl + environment.taskFlow.updateTask}${id}/`;
         return this._httpClient.patch(url, data, {
             headers: this.getAuthHeaders()
