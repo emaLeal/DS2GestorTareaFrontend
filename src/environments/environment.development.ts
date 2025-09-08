@@ -34,9 +34,13 @@ export const environment = {
     createTask: 'task/create/',
     listTasks: 'task/get-task-user/',
     updateTask: 'task/patch/',
+<<<<<<< HEAD
     deleteTask: 'task/delete/',
     listTasksAll: 'task/getall/',
 >>>>>>> 909d4b2 (ms)
+=======
+    deleteTask: 'task/delete/'
+>>>>>>> 6904404 (ms)
   },
   tasks: {
     getAllTasks: 'task/getall/'

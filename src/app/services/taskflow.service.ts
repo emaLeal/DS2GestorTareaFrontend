@@ -71,6 +71,4 @@ export class TaskFlowService {
             'Content-Type': 'application/json'
         });
     }
-    
-
 }
