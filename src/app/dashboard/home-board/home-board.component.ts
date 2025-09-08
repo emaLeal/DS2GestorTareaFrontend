@@ -9,17 +9,26 @@ import { SearchService } from '../../services/search.service';
 import { Chart } from 'chart.js/auto';
 import { TaskFlowService } from '../../services/taskflow.service';
 import { TaskService } from '../../services/task.service';
+import { AuthService } from '../../authentication/auth.service';
 
 interface Task {
   id: number;
   title: string;
   description?: string;
   status: 'To do' | 'in-progress' | 'completed';
-  createdAt: Date;
+  priority?: string;
+  findAt?: string;
+  closedAt?: string;
+  user?: number;
+  user_name?: string;
+  created_by?: number;
   created_by_name?: string;
-  created_at?: string;
+  updated_by?: number;
   updated_by_name?: string;
+  created_at?: string;
   updated_at?: string;
+  is_active?: boolean;
+  tags?: string[];
 }
 
 @Component({
@@ -44,22 +53,20 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   filterEndDate?: string;
 
   private taskSubscription?: Subscription;
+  private departmentUserIds: number[] = []; // IDs de usuarios del departamento
 
   constructor(
     private _router: Router,
     private _searchService: SearchService,
     private _taskService: TaskService,
-    private _taskFlowService: TaskFlowService
+    private _taskFlowService: TaskFlowService,
+    private _authService: AuthService
   ) { }
 
   ngOnInit(): void {
     // Cargar tareas iniciales
-    this.loadMockTasks();
+    this.loadDepartmentUsersAndTasks();
     this.filteredTasks = [...this.tasks];
-
-    // FUTURO: Aquí se conectará con el backend para obtener tareas
-    // this.taskService.getTasks().subscribe(data => this.tasks = data);
-
 
     this._searchService.search$.subscribe((term) => {
       this.searchTerm = term;
@@ -89,14 +96,93 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     this.openTaskId = this.openTaskId === task.id ? null : task.id;
   }
 
-  // simula carga de tareas hasta que no haya backend 
-  loadMockTasks(): void {
-    this._taskService.getAllTasks().subscribe({
+  // Cargar usuarios del departamento y luego las tareas
+  loadDepartmentUsersAndTasks(): void {
+    const user = this._authService.getProfile();
+    const isManager = user && (user.role_id === 1 || user.role_id === '1');
+    
+    if (isManager) {
+      // Usar directamente la solución temporal (sin intentar el endpoint que no existe)
+      console.log('Gerente detectado, usando filtro por departamento...');
+      this.departmentUserIds = [];
+      this.loadTasksWithDepartmentFilter();
+    } else {
+      // Para usuarios no gerentes, cargar todas las tareas
+      this.departmentUserIds = [];
+      this.loadTasks();
+    }
+  }
+
+  // Cargar tareas con filtros del backend
+  loadTasks(): void {
+    const filters: any = {};
+    
+    this._taskService.getAllTasks(filters).subscribe({
       next: (res: any) => {
         const list = Array.isArray(res)
           ? res
           : (res?.results || res?.data || res?.items || []);
-        this.tasks = (list as any[]).map((task: any) => task);
+        let allTasks = (list as any[]).map((task: any) => task);
+        
+        // Si es gerente, filtrar por usuarios del departamento
+        if (this.departmentUserIds.length > 0) {
+          console.log('=== FILTRO POR DEPARTAMENTO (usando lista de usuarios) ===');
+          console.log('IDs de usuarios del departamento:', this.departmentUserIds);
+          
+          allTasks = allTasks.filter((task: any) => {
+            const matches = this.departmentUserIds.includes(task.created_by);
+            console.log(`Tarea "${task.title}" (creada por ${task.created_by_name} - ID: ${task.created_by}): ${matches ? 'SÍ' : 'NO'}`);
+            return matches;
+          });
+        }
+        
+        this.tasks = allTasks;
+        this.filteredTasks = [...this.tasks];
+        this.initCharts();
+        this.loadTasksChartByUser();
+        this.applyFilters();
+      }, error: (err) => {
+        console.log(err)
+      }
+    })
+  }
+
+  // Solución temporal: filtrar por departamento usando nombres de usuarios conocidos
+  loadTasksWithDepartmentFilter(): void {
+    const user = this._authService.getProfile();
+    const filters: any = {};
+    
+    // Mapeo temporal de usuarios por departamento (hasta que el backend exponga esta info)
+    const departmentUsers: { [key: number]: string[] } = {
+      1: ['Emanuel'], // Departamento 1
+      2: ['Hernan', 'Usuario2'], // Departamento 2 - agregar más usuarios según sea necesario
+      3: ['Usuario3'], // Departamento 3 - agregar usuarios según sea necesario
+    };
+    
+    this._taskService.getAllTasks(filters).subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res)
+          ? res
+          : (res?.results || res?.data || res?.items || []);
+        let allTasks = (list as any[]).map((task: any) => task);
+        
+        console.log('=== FILTRO POR DEPARTAMENTO (solución temporal) ===');
+        console.log('Departamento del usuario:', user.department_id);
+        console.log('Usuarios del departamento:', departmentUsers[user.department_id]);
+        
+        // Filtrar por nombres de usuarios del departamento
+        allTasks = allTasks.filter((task: any) => {
+          const userName = task.created_by_name;
+          const departmentUserNames = departmentUsers[user.department_id] || [];
+          const matches = departmentUserNames.includes(userName);
+          
+          console.log(`Tarea "${task.title}" (creada por ${userName}): ${matches ? 'SÍ' : 'NO'}`);
+          return matches;
+        });
+        
+        console.log(`Tareas filtradas: ${allTasks.length} de ${list.length}`);
+        
+        this.tasks = allTasks;
         this.filteredTasks = [...this.tasks];
         this.initCharts();
         this.loadTasksChartByUser();
@@ -143,29 +229,63 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   private extractYmd(s?: string) { return s ? s.slice(0, 10) : ''; }
 
   applyFilters(): void {
-    this.filteredTasks = this.tasks.filter((task) => {
-      const statusOk = this.filterStatus ? task.status === this.filterStatus : true;
-      const priorityOk = this.filterPriority ? (task as any).priority === this.filterPriority : true;
-      const tagOk = this.filterTag
-        ? ((task as any).tags || []).some((t: string) => t.toLowerCase().includes(this.filterTag.toLowerCase()))
-        : true;
+    // Si hay filtros activos, recargar desde el backend con los filtros
+    const hasFilters = this.filterStatus || this.filterPriority || this.filterTag || this.filterStartDate || this.filterEndDate;
+    
+    if (hasFilters) {
+      this.loadTasksWithFilters();
+    } else {
+      // Si no hay filtros, usar filtrado local
+      this.filteredTasks = this.tasks.filter((task) => {
+        const titleOk = this.searchTerm ? task.title.toLowerCase().includes(this.searchTerm) : true;
+        return titleOk;
+      });
+    }
+  }
 
-      // Usar el campo correcto para fechas (created_at es el que se muestra en el template)
-      const taskDateStr = (task as any).created_at || (task as any).createdAt || (task as any).findAt;
-      const taskYmd = this.extractYmd(taskDateStr);
-      const startYmd = this.filterStartDate || '';
-      const endYmd = this.filterEndDate || '';
-      
-      // Debug: mostrar qué fecha está usando cada tarea
-      if (startYmd && taskYmd) {
-        console.log(`Tarea "${task.title}": fecha=${taskYmd}, filtro desde=${startYmd}, cumple=${taskYmd >= startYmd}`);
+  private loadTasksWithFilters(): void {
+    const filters: any = {};
+    
+    // Filtros del backend
+    if (this.filterStatus) filters.status = this.filterStatus;
+    if (this.filterPriority) filters.priority = this.filterPriority;
+    if (this.filterTag) filters.tag = this.filterTag;
+    
+    this._taskService.getAllTasks(filters).subscribe({
+      next: (res: any) => {
+        const list = Array.isArray(res)
+          ? res
+          : (res?.results || res?.data || res?.items || []);
+        let allTasks = (list as any[]).map((task: any) => task);
+        
+        // Si es gerente, filtrar por usuarios del departamento
+        if (this.departmentUserIds.length > 0) {
+          allTasks = allTasks.filter((task: any) => {
+            return this.departmentUserIds.includes(task.created_by);
+          });
+        }
+        
+        this.tasks = allTasks;
+        
+        // Aplicar filtros de fecha localmente (ya que el backend no los soporta aún)
+        this.filteredTasks = this.tasks.filter((task) => {
+          const taskDateStr = task.created_at || task.findAt;
+          const taskYmd = this.extractYmd(taskDateStr);
+          const startYmd = this.filterStartDate || '';
+          const endYmd = this.filterEndDate || '';
+          
+          const startOk = startYmd ? taskYmd >= startYmd : true;
+          const endOk = endYmd ? taskYmd <= endYmd : true;
+          const titleOk = this.searchTerm ? task.title.toLowerCase().includes(this.searchTerm) : true;
+          
+          return startOk && endOk && titleOk;
+        });
+        
+        this.initCharts();
+        this.loadTasksChartByUser();
+      }, error: (err) => {
+        console.log(err)
       }
-      
-      const startOk = startYmd ? taskYmd >= startYmd : true;
-      const endOk = endYmd ? taskYmd <= endYmd : true;
-
-      const titleOk = this.searchTerm ? task.title.toLowerCase().includes(this.searchTerm) : true;
-      return statusOk && priorityOk && tagOk && startOk && endOk && titleOk;
     });
   }
 
@@ -175,7 +295,8 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     this.filterTag = '';
     this.filterStartDate = undefined;
     this.filterEndDate = undefined;
-    this.applyFilters();
+    // Recargar tareas sin filtros
+    this.loadTasks();
   }
 
   deleteTask(task: Task) {
