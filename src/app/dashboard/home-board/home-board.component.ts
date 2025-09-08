@@ -88,18 +88,13 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     this._taskService.getAllTasks().subscribe({
       next: (res: any) => {
         this.tasks = res.map((task: any) => task)
+        this.filteredTasks = [...this.tasks];
+        this.initCharts();
+        this.loadTasksChartByUser();
       }, error: (err) => {
         console.log(err)
       }
     })
-    // this.tasks = [
-    //   { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date() },
-    //   { id: 2, title: 'Landing Page Design for TravelDays', status: 'todo', createdAt: new Date() },
-    //   { id: 3, title: 'Presentation on Final Product', status: 'todo', createdAt: new Date() },
-    //   { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date() },
-    //   { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date() },
-    //   { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
-    // ];
   }
 
   // Filtrar por estado
