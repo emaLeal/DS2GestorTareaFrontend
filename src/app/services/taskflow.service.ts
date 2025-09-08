@@ -51,13 +51,19 @@ export class TaskFlowService {
     }
 
     getTaskFlow() {
-        console.log("TaskFlowService - getTaskFlow called");
-
         const url = environment.baseUrl + environment.taskFlow.listTasks;
         return this.http.get(url, {
             headers: this.getAuthHeaders()
         });
     }
+
+    getTaskFlowAll() {
+        const url = environment.baseUrl + environment.taskFlow.listTasksAll;
+        return this.http.get(url, {
+            headers: this.getAuthHeaders()
+        });
+    }
+
 
     updateTask(id: number, data: any): any {
         const url = `${environment.baseUrl + environment.taskFlow.updateTask}${id}/`;

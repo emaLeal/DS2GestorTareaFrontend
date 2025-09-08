@@ -7,13 +7,18 @@ import { SearchService } from '../../services/search.service';
 
 // Importar Chart.js
 import { Chart } from 'chart.js/auto';
+import { TaskFlowService } from '../../services/taskflow.service';
 
 interface Task {
   id: number;
   title: string;
   description?: string;
-  status: 'todo' | 'in-progress' | 'completed';
+  status: 'To do' | 'in-progress' | 'completed';
   createdAt: Date;
+  created_by_name?: string;
+  created_at?: string;
+  updated_by_name?: string;
+  updated_at?: string;
 }
 
 @Component({
@@ -23,7 +28,7 @@ interface Task {
   templateUrl: './home-board.component.html',
   styleUrls: ['./home-board.component.css'],
 })
-export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeBoardComponent implements OnInit, OnDestroy {
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
   searchTerm: string = '';
@@ -34,8 +39,9 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private router: Router,
-    private searchService: SearchService
-  ) {}
+    private searchService: SearchService,
+    private taskflowService: TaskFlowService,
+  ) { }
 
   ngOnInit(): void {
     // Cargar tareas iniciales
@@ -52,9 +58,15 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  ngAfterViewInit(): void {
-    this.initCharts(); // Inicializar gráficos después de renderizar la vista
+  changeStatus(task: Task) {
+    console.log("Changing status for task:", task);
+
+    const nextStatus = task.status === 'To do' ? 'in-progress' :
+      task.status === 'in-progress' ? 'completed' : 'To do';
+    task.status = nextStatus;
+    this.taskflowService.updateTask(task.id, task).subscribe();
   }
+
 
   ngOnDestroy(): void {
     if (this.taskSubscription) {
@@ -70,18 +82,24 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
-    this.tasks = [
-      { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date() },
-      { id: 2, title: 'Landing Page Design for TravelDays', status: 'todo', createdAt: new Date() },
-      { id: 3, title: 'Presentation on Final Product', status: 'todo', createdAt: new Date() },
-      { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date() },
-      { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date() },
-      { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
-    ];
+
+    this.taskflowService.getTaskFlowAll().subscribe({
+      next: (data: any) => {
+        this.tasks = data; // ✅ Guardar en la variable del componente
+        this.filteredTasks = [...this.tasks]; // Actualizar la lista filtrada
+        this.loadTasksChartByUser();
+
+        this.initCharts()
+
+      },
+      error: (err) => {
+        console.error("Error al obtener tareas:", err);
+      }
+    })
   }
 
   // Filtrar por estado
-  getTasksByStatus(status: 'todo' | 'in-progress' | 'completed') {
+  getTasksByStatus(status: 'To do' | 'in-progress' | 'completed') {
     return this.filteredTasks.filter((t) => t.status === status);
   }
 
@@ -110,14 +128,26 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate(['/login']);
   }
 
+  deleteTask(task: Task) {
+    this.tasks = this.tasks.filter(t => t.id !== task.id);
+    this.taskflowService.deleteTask(task.id).subscribe();
+
+    this.filteredTasks = [...this.tasks];
+    this.openTaskId = null;
+  }
+
+
   // ==========================
   // ESTADÍSTICAS Y GRÁFICOS
   // ==========================
   initCharts(): void {
     // Conteos simulados (aquí luego conectas con backend)
-    const totalTodo = this.tasks.filter((t) => t.status === 'todo').length;
+    const totalTodo = this.tasks.filter((t) => t.status === 'To do').length;
     const totalProgress = this.tasks.filter((t) => t.status === 'in-progress').length;
     const totalCompleted = this.tasks.filter((t) => t.status === 'completed').length;
+    console.log("tasks in initCharts:", this.tasks);
+
+    console.log("Totales - To do:", totalTodo, "In Progress:", totalProgress, "Completed:", totalCompleted);
 
     // Gráfico circular por estado
     new Chart('statusChart', {
@@ -133,23 +163,56 @@ export class HomeBoardComponent implements OnInit, OnDestroy, AfterViewInit {
       },
     });
 
-    // Gráfico de completadas por semana (simulado)
-    new Chart('weeklyChart', {
-      type: 'bar',
+  }
+  loadTasksChartByUser() {
+    const userCounts: { [key: string]: number } = {};
+
+    this.tasks.forEach(task => {
+      const user = task.created_by_name || 'Sin asignar';
+      userCounts[user] = (userCounts[user] || 0) + 1;
+    });
+
+    const labels = Object.keys(userCounts);
+    const data = Object.values(userCounts);
+
+    this.renderUserChart(labels, data);
+  }
+  renderUserChart(labels: string[], data: number[]) {
+    const ctx = document.getElementById('userChart') as HTMLCanvasElement;
+
+    new Chart(ctx, {
+      type: 'doughnut',
       data: {
-        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+        labels: labels,
         datasets: [
           {
-            label: 'Finalizadas',
-            data: [2, 5, 3, 6], // Simulado, luego traer del backend
-            backgroundColor: '#4f46e5',
+            data: data,
+            backgroundColor: [
+              '#3b82f6', // Azul
+              '#f97316', // Naranja
+              '#10b981', // Verde
+              '#f43f5e', // Rojo
+              '#6366f1', // Indigo
+              '#14b8a6'  // Teal
+            ],
           },
         ],
       },
       options: {
         responsive: true,
-        plugins: { legend: { display: false } },
-      },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#374151',
+              font: {
+                size: 12
+              }
+            }
+          }
+        }
+      }
     });
   }
+
 }

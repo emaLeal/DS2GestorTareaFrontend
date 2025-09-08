@@ -114,8 +114,6 @@ addTag() {
   //    Aquí se debe reemplazar la simulación por: this.tasksService.getTasks().subscribe(...) cuando este el backend
   loadTasksFromBackend() {
     console.log("TaskFlow - Cargando tareas (simulado)...");
-
-    const saved = localStorage.getItem('taskflow_tasks_v1');
     this.taskflowService.getTaskFlow().subscribe({
         next: (data: any) => {
           this.tasks = data; // ✅ Guardar en la variable del componente
@@ -127,7 +125,6 @@ addTag() {
           console.error("Error al obtener tareas:", err);
         }
       })
-
   }
 
   // 2) saveTaskToBackend(task)
@@ -292,7 +289,6 @@ addTag() {
   deleteTask(task: Task) {
     this.tasks = this.tasks.filter(t => t.id !== task.id);
     this.taskflowService.deleteTask(task.id).subscribe();
-    console.log("TaskFlow - Tarea eliminada:", task);
     
     this.filteredTasks = [...this.tasks];
     this.openTaskId = null;

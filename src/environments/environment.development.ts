@@ -11,9 +11,10 @@ export const environment = {
         changePassword: 'auth/change_password/'
     },
     taskFlow: {
-    createTask: 'task/create/',
-    listTasks: 'task/get-task-user/',
-    updateTask: 'task/patch/', 
-    deleteTask: 'task/delete/'  
+      createTask: 'task/create/',
+      listTasks: 'task/get-task-user/',
+      updateTask: 'task/patch/', 
+      deleteTask: 'task/delete/',
+      listTasksAll: 'task/getall/',
   },
 };
