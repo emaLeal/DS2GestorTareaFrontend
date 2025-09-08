@@ -281,7 +281,7 @@ addTag() {
 
   editTask(task: Task) {
     console.log("Editar tarea:", task);
-    // ejemplo: navegar a ruta de edición (puedes abrir modal en lugar de esto)
+    localStorage.setItem('taskflow_tasks_v1', JSON.stringify(task))
     this.router.navigate(['/dashboard/edit-task'], { queryParams: { id: task.id } });
     this.openTaskId = null;
   }

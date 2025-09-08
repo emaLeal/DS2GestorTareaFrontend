@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
+import { TaskFlowService } from '../../services/taskflow.service';
 
 interface Task {
   id: number;
@@ -41,12 +42,12 @@ export class EditTaskComponent implements OnInit {
   };
 
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router, private taskFlowService: TaskFlowService) { }
 
   ngOnInit(): void {
     // Obtenemos el id de la URL (queryParam: ?id=123)
     this.route.queryParams.subscribe(params => {
-      this.taskId = +params['id']; 
+      this.taskId = +params['id'];
       this.loadTaskFromLocalStorage(this.taskId);
     });
   }
@@ -58,11 +59,12 @@ export class EditTaskComponent implements OnInit {
   // -------------------------
   private loadTaskFromLocalStorage(id: number) {
     const saved = localStorage.getItem('taskflow_tasks_v1');
+    console.log(saved)
     if (!saved) return;
-    const tasks: Task[] = JSON.parse(saved);
-    const found = tasks.find(t => t.id === id);
+    const tasks: Task = JSON.parse(saved);
+    const found = tasks
     if (found) {
-      this.task = { ...found }; // clonamos para edición
+      this.task = found; // clonamos para edición
     }
   }
 
@@ -86,13 +88,20 @@ export class EditTaskComponent implements OnInit {
           createdAt: new Date(this.task.createdAt!).toISOString(),
           closedAt: this.task.closedAt ? new Date(this.task.closedAt).toISOString() : ''
         };
-        localStorage.setItem('taskflow_tasks_v1', JSON.stringify(tasks));
-        console.log('✅ Task actualizada (simulada):', tasks[idx]);
+        this.taskFlowService.updateTask(idx, this.task).subscribe({
+          next: (res: any) => {
+            localStorage.setItem('taskflow_tasks_v1', JSON.stringify(tasks));
+            console.log('✅ Task actualizada (simulada):', tasks[idx]);
+          }, error: (err) => {
+            console.log(err)
+          }
+        })
+
+
       }
     }
-    
-    // 👉 Aquí deberías conectar con backend real:
-    // this.tasksService.updateTask(this.task).subscribe(...)
+
+
 
     this.router.navigate(['/dashboard/taskflow']); // volver al tablero
   }
