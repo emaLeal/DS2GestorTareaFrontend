@@ -34,7 +34,7 @@ export class ProfileComponent implements OnInit {
 
   // cargar el usuario desde localStorage
   loadUserFromLocalStorage(): void {
-    const userData = localStorage.getItem('user_data');
+    const userData = localStorage.getItem('user');
 
     if (userData && userData !== 'undefined') {
       try {
