@@ -63,37 +63,6 @@ export class LoginComponent implements OnInit {
 
       this.loginError = '';
       this.isLoggingIn = true;
-<<<<<<< HEAD
-
-      this._authService.login(login).subscribe({
-        next: (response: any) => {
-          // Guardar tokens
-          localStorage.setItem('token', response.access);
-          localStorage.setItem('refresh_token', response.refresh);
-
-          // Obtener perfil con el token
-          let urlProfile: string = environment.baseUrl + environment.authentication.profile;
-
-          this.http.get(urlProfile, {
-            headers: { 'authorization': `Bearer ${response.access}` }
-          }).subscribe({
-            next: (user: any) => {
-              // Guardar el usuario en localStorage
-              localStorage.setItem('user_data', JSON.stringify(user));
-              this._router.navigate(['/dashboard']);
-            },
-            error: (error) => {
-              this.isLoggingIn = false;
-              this.loginError = 'Error al obtener el perfil de usuario';
-              console.error(error);
-            }
-          });
-        },
-        error: (err) => {
-          this.isLoggingIn = false;
-          this.loginError = '¡Fallo al iniciar sesión! Verifica tu documento y contraseña.';
-          console.error(err);
-=======
       this._authService.login(login).subscribe({
         next: () => {
           this._authService.requestProfile().subscribe({
@@ -109,7 +78,6 @@ export class LoginComponent implements OnInit {
         error: () => {
           this.loginError = 'Credenciales incorrectas';
           this.isLoggingIn = false;
->>>>>>> 67a344e (Rutas protegidas por Guards)
         }
       });
     }

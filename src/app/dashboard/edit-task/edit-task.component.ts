@@ -52,19 +52,18 @@ export class EditTaskComponent implements OnInit {
     });
   }
   titleInvalid(form: NgForm | any) {
-    return form && form.submitted && (!this.currentTask.title || this.currentTask.title.trim() === '');
+    return form && form.submitted && (!this.task.title || this.task.title.trim() === '');
   }
   // -------------------------
   // Simulación carga tarea
   // -------------------------
   private loadTaskFromLocalStorage(id: number) {
     const saved = localStorage.getItem('taskflow_tasks_v1');
-    console.log(saved)
     if (!saved) return;
-    const tasks: Task = JSON.parse(saved);
-    const found = tasks
+    const tasks: Task[] = JSON.parse(saved);
+    const found = tasks.find(t => t.id === id);
     if (found) {
-      this.task = found; // clonamos para edición
+      this.task = { ...found }; // clonamos para edición
     }
   }
 
@@ -82,16 +81,15 @@ export class EditTaskComponent implements OnInit {
       const tasks: Task[] = JSON.parse(saved);
       const idx = tasks.findIndex(t => t.id === this.taskId);
       if (idx > -1) {
+
         tasks[idx] = {
           ...tasks[idx],
           ...this.task,
-          createdAt: new Date(this.task.createdAt!).toISOString(),
           closedAt: this.task.closedAt ? new Date(this.task.closedAt).toISOString() : ''
         };
-        this.taskFlowService.updateTask(idx, this.task).subscribe({
+        this.taskFlowService.updateTask(this.taskId, this.task).subscribe({
           next: (res: any) => {
-            localStorage.setItem('taskflow_tasks_v1', JSON.stringify(tasks));
-            console.log('✅ Task actualizada (simulada):', tasks[idx]);
+            this.router.navigate(['/dashboard/taskflow']).then(() => window.location.reload())
           }, error: (err) => {
             console.log(err)
           }
