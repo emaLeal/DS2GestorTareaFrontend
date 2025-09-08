@@ -78,7 +78,7 @@ export class LoginComponent implements OnInit {
           }).subscribe({
             next: (user: any) => {
               // Guardar el usuario en localStorage
-              localStorage.setItem('user_data', JSON.stringify(user));
+              localStorage.setItem('user', JSON.stringify(user));
               this._router.navigate(['/dashboard']);
             },
             error: (error) => {
