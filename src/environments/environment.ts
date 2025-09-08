@@ -14,6 +14,7 @@ export const environment = {
         createTask: 'task/create/',
         listTasks: 'task/get-task-user/',
         updateTask: 'task/patch/',
-        deleteTask: 'task/delete/'
+        deleteTask: 'task/delete/',
+        listTasksAll: 'task/getall/',
     },
 };
