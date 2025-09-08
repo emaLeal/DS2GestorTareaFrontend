@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    baseUrl: 'http://localhost:8000/api/',
+    baseUrl: 'https://ds2gestortareabackend.onrender.com/api/',
     authentication: {
         login: 'auth/login/',
         register: 'auth/register/',
