@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface TaskFlow {
     id?: number;
@@ -22,6 +22,38 @@ export interface TaskFlow {
 @Injectable({ providedIn: 'root' })
 
 export class TaskFlowService {
+
+    constructor(private _httpClient: HttpClient) { }
+    createTask(data: any) {
+        const url = environment.baseUrl + environment.taskFlow.createTask;
+        return this._httpClient.post(url, data, {
+            headers: this.getAuthHeaders()
+        });
+    }
+
+    getTaskFlow() {
+        console.log("TaskFlowService - getTaskFlow called");
+
+        const url = environment.baseUrl + environment.taskFlow.listTasks;
+        return this._httpClient.get(url, {
+            headers: this.getAuthHeaders()
+        });
+    }
+
+    updateTask(id: number, data: any): any {
+        const url = `${environment.baseUrl + environment.taskFlow.updateTask}${id}/`;
+        return this._httpClient.patch(url, data, {
+            headers: this.getAuthHeaders()
+        });
+    }
+
+    deleteTask(id: number): any {
+        const url = `${environment.baseUrl + environment.taskFlow.deleteTask}${id}/`;
+        return this._httpClient.delete(url, {
+            headers: this.getAuthHeaders()
+        });
+    }
+
     private getAuthHeaders(): HttpHeaders {
         const tokenString = localStorage.getItem('token');
         let token;
@@ -37,46 +69,6 @@ export class TaskFlowService {
             'Content-Type': 'application/json'
         });
     }
-    constructor(private http: HttpClient) { }
-
-    createTask(data: any) {
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
-        data.user = userData.id;
-        console.log("TaskFlowService - createTask called with data:", data);
-        
-        const url = environment.baseUrl + environment.taskFlow.createTask;
-        return this.http.post(url, data, {
-            headers: this.getAuthHeaders()
-        });
-    }
-
-    getTaskFlow() {
-        const url = environment.baseUrl + environment.taskFlow.listTasks;
-        return this.http.get(url, {
-            headers: this.getAuthHeaders()
-        });
-    }
-
-    getTaskFlowAll() {
-        const url = environment.baseUrl + environment.taskFlow.listTasksAll;
-        return this.http.get(url, {
-            headers: this.getAuthHeaders()
-        });
-    }
-
-
-    updateTask(id: number, data: any): any {
-        const url = `${environment.baseUrl + environment.taskFlow.updateTask}${id}/`;
-        return this.http.patch(url, data, {
-            headers: this.getAuthHeaders()
-        });
-    }
-
-    deleteTask(id: number): any {
-        const url = `${environment.baseUrl + environment.taskFlow.deleteTask}${id}/`;
-        return this.http.delete(url, {
-            headers: this.getAuthHeaders()
-        });
-    }
+    
 
 }
