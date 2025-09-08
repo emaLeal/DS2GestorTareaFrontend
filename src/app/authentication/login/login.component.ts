@@ -71,22 +71,17 @@ export class LoginComponent implements OnInit {
           localStorage.setItem('refresh_token', response.refresh);
 
           // Obtener perfil con el token
-          let urlProfile: string = environment.baseUrl + environment.authentication.profile;
-
-          this.http.get(urlProfile, {
-            headers: { 'authorization': `Bearer ${response.access}` }
-          }).subscribe({
+          this._authService.requestProfile().subscribe({
             next: (user: any) => {
-              // Guardar el usuario en localStorage
-              localStorage.setItem('user', JSON.stringify(user));
               this._router.navigate(['/dashboard']);
-            },
-            error: (error) => {
+            }, error: (err) => {
               this.isLoggingIn = false;
               this.loginError = 'Error al obtener el perfil de usuario';
-              console.error(error);
+              console.error(err);
             }
-          });
+          })
+
+
         },
         error: (err) => {
           this.isLoggingIn = false;
