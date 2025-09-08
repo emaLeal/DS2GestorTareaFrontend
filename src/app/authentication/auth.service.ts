@@ -76,7 +76,7 @@ export class AuthService {
 
   getProfile() {
     const user = localStorage.getItem('user')
-    return JSON.parse(localStorage.getItem('user')!)
+    return JSON.parse(localStorage.getItem('user_data')!)
   }
 
 
