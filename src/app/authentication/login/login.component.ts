@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Login } from '../auth.types';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -12,10 +14,8 @@ import { AuthService } from '../auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
-  LoginForm!: FormGroup;
-  form?: FormGroup | undefined;
   loginForm!: FormGroup;
   isLoggingIn = false;
   loginError = '';
@@ -31,7 +31,8 @@ export class LoginComponent {
   constructor(
     private _fb: FormBuilder,
     private _authService: AuthService,
-    private _router: Router
+    private _router: Router,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -39,11 +40,12 @@ export class LoginComponent {
       document_id: ['', [Validators.required, Validators.pattern('^[0-9]{6,15}$')]],
       password: ['', [Validators.required, Validators.minLength(8)]],
     });
-
   }
+
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
+
   onPasswordInput(): void {
     const password = this.loginForm.get('password')?.value || '';
     this.requiredpass = {
@@ -54,22 +56,51 @@ export class LoginComponent {
       hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
   }
+
   submit() {
     if (this.loginForm?.valid) {
       const login: Login = this.loginForm?.value;
-      
+
       this.loginError = '';
       this.isLoggingIn = true;
-      this._authService.login(login).subscribe(res => {
-        this._authService.getProfile()
-        this._router.navigate(['/dashboard'])
-      })
 
+      this._authService.login(login).subscribe({
+        next: (response: any) => {
+          // Guardar tokens
+          localStorage.setItem('token', response.access);
+          localStorage.setItem('refresh_token', response.refresh);
+
+          // Obtener perfil con el token
+          let urlProfile: string = environment.baseUrl + environment.authentication.profile;
+
+          this.http.get(urlProfile, {
+            headers: { 'authorization': `Bearer ${response.access}` }
+          }).subscribe({
+            next: (user: any) => {
+              // Guardar el usuario en localStorage
+              localStorage.setItem('user_data', JSON.stringify(user));
+              this._router.navigate(['/dashboard']);
+            },
+            error: (error) => {
+              this.isLoggingIn = false;
+              this.loginError = 'Error al obtener el perfil de usuario';
+              console.error(error);
+            }
+          });
+        },
+        error: (err) => {
+          this.isLoggingIn = false;
+          this.loginError = '¡Fallo al iniciar sesión! Verifica tu documento y contraseña.';
+          console.error(err);
+        }
+      });
     }
   }
+
   get isFormReady(): boolean {
     return this.loginForm.valid && Object.values(this.loginForm.controls).every(c => c.touched);
   }
+
   onlyLetters(event: KeyboardEvent): void {
     const pattern = /[a-zA-Z\s]/;
     const inputChar = String.fromCharCode(event.charCode);
@@ -79,11 +110,8 @@ export class LoginComponent {
     }
   }
 
-
-
   onDocumentInputRegister(event: any) {
     const value = event.target.value.replace(/[^0-9]/g, '');
     this.loginForm.get('document_id')?.setValue(value, { emitEvent: false });
   }
-
 }

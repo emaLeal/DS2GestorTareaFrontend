@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Login, User } from './auth.types';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 import { catchError, Observable, throwError, tap } from 'rxjs';
 
 @Injectable({
@@ -65,16 +65,18 @@ export class AuthService {
     return this._httpClient.post(url, body)
   }
 
-  getProfile() {
+  requestProfile() {
     const url = environment.baseUrl + environment.authentication.profile
-    return this._httpClient.get(url, { headers: this.getAuthHeaders() }).subscribe({
-      next: (response) => {
-        localStorage.setItem('user', JSON.stringify(response))
-      },
-      error: (err) => {
-        console.log(err)
-      }
-    })
+    return this._httpClient.get(url, { headers: this.getAuthHeaders() }).pipe(
+      tap((response) => {
+        localStorage.setItem('user', JSON.stringify(response));
+      })
+    );
+  }
+
+  getProfile() {
+    const user = localStorage.getItem('user')
+    return JSON.parse(localStorage.getItem('user')!)
   }
 
 

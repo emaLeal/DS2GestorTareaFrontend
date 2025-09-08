@@ -29,6 +29,8 @@ interface Task {
   findAt: string
   closedAt?: string; // <-- NUEVO: fecha de cierre opcional
   user?: number;
+  priority: string, // ✅ nueva propiedad
+  tags: string[]; // ✅ nueva propiedad
 }
 
 @Component({
@@ -54,7 +56,9 @@ export class TaskflowComponent implements OnInit {
     status: 'To do',
     createdAt: '',
     findAt: '',
-    closedAt: '' // <-- agregado
+    closedAt: '',// <-- agregado
+    priority: 'medium', // ✅ nueva propiedad
+    tags: []
   };
 
   // Drag data para mover la tarea 
@@ -80,6 +84,29 @@ export class TaskflowComponent implements OnInit {
     });
   }
 
+  tagsInput: string = '';
+
+addTag() {
+  console.log("Adding tag:", this.currentTask.tags);
+
+  const newTag = this.tagsInput.trim();
+
+  if (newTag !== '') {
+    // Crear un nuevo array con el tag nuevo
+    this.currentTask.tags = [...(this.currentTask.tags || []), newTag];
+
+    // Eliminar duplicados
+    this.currentTask.tags = [...new Set(this.currentTask.tags)];
+
+    // Limpiar el input
+    this.tagsInput = '';
+  }
+}
+
+  removeTag(index: number) {
+    this.currentTask.tags?.splice(index, 1);
+  }
+
   // -------------------------
   // CONECCION CON BACKEND 
   // -------------------------
@@ -87,8 +114,6 @@ export class TaskflowComponent implements OnInit {
   //    Aquí se debe reemplazar la simulación por: this.tasksService.getTasks().subscribe(...) cuando este el backend
   loadTasksFromBackend() {
     console.log("TaskFlow - Cargando tareas (simulado)...");
-
-    const saved = localStorage.getItem('taskflow_tasks_v1');
     this.taskflowService.getTaskFlow().subscribe({
         next: (data: any) => {
           this.tasks = data; // ✅ Guardar en la variable del componente
@@ -100,7 +125,6 @@ export class TaskflowComponent implements OnInit {
           console.error("Error al obtener tareas:", err);
         }
       })
-
   }
 
   // 2) saveTaskToBackend(task)
@@ -118,7 +142,7 @@ export class TaskflowComponent implements OnInit {
         error: (err) => {
           console.error("Error al obtener tareas:", err);
         }
-      });
+    });
   }
 
   // 3) updateTaskBackend(task)
@@ -186,6 +210,8 @@ export class TaskflowComponent implements OnInit {
       findAt: new Date(this.currentTask.createdAt!).toISOString(),
       closedAt: this.currentTask.closedAt ? new Date(this.currentTask.closedAt).toISOString() : '', // <-- 
       user: 1, //<- cambiar por el usuario loggeado
+      priority: this.currentTask.priority || 'medium', 
+      tags: this.currentTask.tags || [],
     };
 
     // Lugar para conectar el backend: saveTaskToBackend (reemplazar)
@@ -263,7 +289,6 @@ export class TaskflowComponent implements OnInit {
   deleteTask(task: Task) {
     this.tasks = this.tasks.filter(t => t.id !== task.id);
     this.taskflowService.deleteTask(task.id).subscribe();
-    console.log("TaskFlow - Tarea eliminada:", task);
     
     this.filteredTasks = [...this.tasks];
     this.openTaskId = null;

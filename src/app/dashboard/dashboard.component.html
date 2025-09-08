@@ -6,17 +6,11 @@
   <!-- Search centro -->
   <div class="mx-auto w-full max-w-2xl">
     <div class="relative">
-      <input
-        type="text"
-        placeholder="Search your task here..."
+      <input type="text" placeholder="Search your task here..."
         class="w-full h-10 pl-4 pr-12 rounded-full shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-        aria-label="Buscar tareas"
-        (input)="onSearch($event)"
-      />
-      <button
-        aria-label="Buscar"
-        class="absolute right-1 top-1 h-8 w-8 rounded-full flex items-center justify-center bg-pink-500 shadow-md"
-      >
+        aria-label="Buscar tareas" (input)="onSearch($event)" />
+      <button aria-label="Buscar"
+        class="absolute right-1 top-1 h-8 w-8 rounded-full flex items-center justify-center bg-pink-500 shadow-md">
         <span class="material-icons text-white text-[20px]">search</span>
       </button>
     </div>
@@ -26,90 +20,79 @@
   <div class="flex items-center space-x-4">
     <!-- User Menu -->
     <div class="relative">
-      <button
-        aria-label="Perfil"
-        class="h-10 w-10 rounded-full bg-white shadow flex items-center justify-center"
-        (click)="toggleMenu()"
-      >
+      <button aria-label="Perfil" class="h-10 w-10 rounded-full bg-white shadow flex items-center justify-center"
+        (click)="toggleMenu()">
         <span class="material-icons text-indigo-600">account_circle</span>
       </button>
 
       <!-- Menú desplegable -->
+      <div *ngIf="isMenuOpen" class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
       <div
         *ngIf="isMenuOpen"
-        class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10"
+        class="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10 mx-auto"
       >
         <a routerLink="/dashboard/profile" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100">
           <span class="material-icons text-indigo-600">person</span>
           Perfil
         </a>
-        <a
-          routerLink="/login"
-          class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
-        >
+        <button (click)="logout()" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100">
           <span class="material-icons text-indigo-600">logout</span>
           Cerrar sesión
-        </a>
+        </button>
       </div>
     </div>
+    </div>
   </div>
+  
 </header>
 
 <!-- LAYOUT: sidebar + contenido -->
 <div class="flex">
   <!-- SIDEBAR -->
-  <aside
-    class="bg-[#4f46e5] text-white min-h-[calc(100vh-4rem)] flex flex-col transition-all duration-300"
-    [class.w-64]="!sidebarCollapsed"
-    [class.w-20]="sidebarCollapsed"
-  >
+  <aside class="bg-[#4f46e5] text-white min-h-[calc(100vh-4rem)] flex flex-col transition-all duration-300"
+    [class.w-64]="!sidebarCollapsed" [class.w-20]="sidebarCollapsed">
     <!-- Botón hamburguesa (solo visible en pantallas pequeñas) -->
-    <button
-      (click)="toggleSidebar()"
-      class="md:hidden p-3 text-white focus:outline-none"
-    >
-    
+    <button (click)="toggleSidebar()" class="md:hidden p-3 text-white focus:outline-none">
+
       <span class="material-icons">menu</span>
     </button>
 
-
-
     <!-- Navegación -->
-     <p class="text-center py-4 font-bold text-lg" *ngIf="!sidebarCollapsed">Menu</p>
+    <p class="text-center py-4 font-bold text-lg" *ngIf="!sidebarCollapsed">Menu</p>
     <nav class="flex-1 px-4">
       <ul class="space-y-2">
+        @for (item of items; track item) {
         <li>
-          <a
-            routerLink="/dashboard/home-board"
-            routerLinkActive="bg-white/20"
-            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/25"
-          >
+          <a routerLink={{item.route}} routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/25">
+            <span class="material-icons text-lg">{{item.icon}}</span>
+            <span *ngIf="!sidebarCollapsed">{{item.label}}</span>
+          </a>
+        </li>
+        }
+        <!-- <li>
+          <a routerLink="/dashboard/home-board" routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/25">
             <span class="material-icons text-lg">dashboard</span>
             <span *ngIf="!sidebarCollapsed">Tablero de inicio</span>
           </a>
         </li>
 
         <li>
-          <a
-            routerLink="/dashboard/taskflow"
-            routerLinkActive="bg-white/20"
-            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10"
-          >
+          <a routerLink="/dashboard/taskflow" routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10">
             <span class="material-icons text-lg">check_circle</span>
             <span *ngIf="!sidebarCollapsed">Mis tareas</span>
           </a>
         </li>
-          
+
         <li>
-          <a
-            routerLink="/dashboard/help"
-            routerLinkActive="bg-white/20"
-            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10"
-          >
+          <a routerLink="/dashboard/help" routerLinkActive="bg-white/20"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/10">
             <span class="material-icons text-lg">help_outline</span>
             <span *ngIf="!sidebarCollapsed">Ayuda</span>
           </a>
-        </li>
+        </li> -->
       </ul>
     </nav>
   </aside>
