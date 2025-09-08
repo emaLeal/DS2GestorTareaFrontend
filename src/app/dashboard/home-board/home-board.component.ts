@@ -41,8 +41,8 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   constructor(
     private _router: Router,
     private _searchService: SearchService,
-    private _taskFlowService: TaskFlowService,
-    private _taskService: TaskService
+    private _taskService: TaskService,
+    private _taskFlowService: TaskFlowService
   ) { }
 
   ngOnInit(): void {
@@ -215,3 +215,4 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   }
 
 }
+
