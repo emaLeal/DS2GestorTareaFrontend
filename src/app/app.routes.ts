@@ -10,6 +10,7 @@ import { EditTaskComponent } from './dashboard/edit-task/edit-task.component';
 import { HelpComponent } from './dashboard/help/help.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ResetPasswordComponent } from './authentication/reset-password/reset-password.component';
+import { authGuard, isSuperGuard } from './authentication/guards/auth.guard';
 
 
 export const routes: Routes = [
@@ -25,13 +26,13 @@ export const routes: Routes = [
     //luego se agrega canActivate:[Autenticated] para direccionar la ruta segun el rol del usuario 
     children: [
       { path: 'profile', component: ProfileComponent }, // ruta para el componente perfil de usuario
-      { path: 'home-board', component: HomeBoardComponent }, // Ruta para el componente Dashboard
+      { path: 'home-board', component: HomeBoardComponent, canActivate: [isSuperGuard] }, // Ruta para el componente Dashboard
       { path: 'taskflow', component: TaskflowComponent }, // Ruta para el componente Taskflow
       { path: 'edit-task', component: EditTaskComponent }, // Ruta para el componente EditTask
       { path: 'help', component: HelpComponent }, //Ruta para el componente de ayuda 
       { path: '**', redirectTo: 'home-board' }, // ruta por defecto del dashboar
 
-    ]
+    ], canActivate: [authGuard]
   },
 
 

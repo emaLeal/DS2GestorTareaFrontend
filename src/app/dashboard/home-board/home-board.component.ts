@@ -38,9 +38,9 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   private taskSubscription?: Subscription;
 
   constructor(
-    private router: Router,
-    private searchService: SearchService,
-    private taskflowService: TaskFlowService,
+    private _router: Router,
+    private _searchService: SearchService,
+    private _taskFlowService: TaskFlowService
   ) { }
 
   ngOnInit(): void {
@@ -51,7 +51,8 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     // FUTURO: Aquí se conectará con el backend para obtener tareas
     // this.taskService.getTasks().subscribe(data => this.tasks = data);
 
-    this.searchService.search$.subscribe((term) => {
+
+    this._searchService.search$.subscribe((term) => {
       this.filteredTasks = this.tasks.filter((t) =>
         t.title.toLowerCase().includes(term)
       );
@@ -64,7 +65,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     const nextStatus = task.status === 'To do' ? 'in-progress' :
       task.status === 'in-progress' ? 'completed' : 'To do';
     task.status = nextStatus;
-    this.taskflowService.updateTask(task.id, task).subscribe();
+    this._taskFlowService.updateTask(task.id, task).subscribe();
   }
 
 
@@ -82,18 +83,14 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
-
-    this.taskflowService.getTaskFlowAll().subscribe({
-      next: (data: any) => {
-        this.tasks = data; // ✅ Guardar en la variable del componente
-        this.filteredTasks = [...this.tasks]; // Actualizar la lista filtrada
+    this._taskFlowService.getTaskFlowAll().subscribe({
+      next: (res: any) => {
+        this.tasks = res.map((task: any) => task)
+        this.filteredTasks = [...this.tasks];
+        this.initCharts();
         this.loadTasksChartByUser();
-
-        this.initCharts()
-
-      },
-      error: (err) => {
-        console.error("Error al obtener tareas:", err);
+      }, error: (err: any) => {
+        console.log(err)
       }
     })
   }
@@ -125,12 +122,12 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   // Cerrar sesión
   logout(): void {
     console.log('Cerrar sesión');
-    this.router.navigate(['/login']);
+    this._router.navigate(['/login']);
   }
 
   deleteTask(task: Task) {
     this.tasks = this.tasks.filter(t => t.id !== task.id);
-    this.taskflowService.deleteTask(task.id).subscribe();
+    this._taskFlowService.deleteTask(task.id).subscribe();
 
     this.filteredTasks = [...this.tasks];
     this.openTaskId = null;
@@ -145,7 +142,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     const totalTodo = this.tasks.filter((t) => t.status === 'To do').length;
     const totalProgress = this.tasks.filter((t) => t.status === 'in-progress').length;
     const totalCompleted = this.tasks.filter((t) => t.status === 'completed').length;
-    console.log("tasks in initCharts:", this.tasks);
+    console.log(totalTodo, totalProgress, totalCompleted);
 
     console.log("Totales - To do:", totalTodo, "In Progress:", totalProgress, "Completed:", totalCompleted);
 
