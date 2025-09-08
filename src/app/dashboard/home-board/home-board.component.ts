@@ -36,6 +36,13 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   isMenuOpen = false;
   showSearchResults = false;
 
+  // Filtros tablero
+  filterStatus: '' | 'To do' | 'in-progress' | 'completed' = '';
+  filterPriority: '' | 'low' | 'medium' | 'high' = '';
+  filterTag: string = '';
+  filterStartDate?: string;
+  filterEndDate?: string;
+
   private taskSubscription?: Subscription;
 
   constructor(
@@ -55,9 +62,8 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
 
     this._searchService.search$.subscribe((term) => {
-      this.filteredTasks = this.tasks.filter((t) =>
-        t.title.toLowerCase().includes(term)
-      );
+      this.searchTerm = term;
+      this.applyFilters();
     });
   }
 
@@ -87,10 +93,14 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   loadMockTasks(): void {
     this._taskService.getAllTasks().subscribe({
       next: (res: any) => {
-        this.tasks = res.map((task: any) => task)
+        const list = Array.isArray(res)
+          ? res
+          : (res?.results || res?.data || res?.items || []);
+        this.tasks = (list as any[]).map((task: any) => task);
         this.filteredTasks = [...this.tasks];
         this.initCharts();
         this.loadTasksChartByUser();
+        this.applyFilters();
       }, error: (err) => {
         console.log(err)
       }
@@ -127,6 +137,47 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     this._router.navigate(['/login']);
   }
 
+  // ==========================
+  // FILTROS (tablero)
+  // ==========================
+  private extractYmd(s?: string) { return s ? s.slice(0, 10) : ''; }
+
+  applyFilters(): void {
+    this.filteredTasks = this.tasks.filter((task) => {
+      const statusOk = this.filterStatus ? task.status === this.filterStatus : true;
+      const priorityOk = this.filterPriority ? (task as any).priority === this.filterPriority : true;
+      const tagOk = this.filterTag
+        ? ((task as any).tags || []).some((t: string) => t.toLowerCase().includes(this.filterTag.toLowerCase()))
+        : true;
+
+      // Usar el campo correcto para fechas (created_at es el que se muestra en el template)
+      const taskDateStr = (task as any).created_at || (task as any).createdAt || (task as any).findAt;
+      const taskYmd = this.extractYmd(taskDateStr);
+      const startYmd = this.filterStartDate || '';
+      const endYmd = this.filterEndDate || '';
+      
+      // Debug: mostrar qué fecha está usando cada tarea
+      if (startYmd && taskYmd) {
+        console.log(`Tarea "${task.title}": fecha=${taskYmd}, filtro desde=${startYmd}, cumple=${taskYmd >= startYmd}`);
+      }
+      
+      const startOk = startYmd ? taskYmd >= startYmd : true;
+      const endOk = endYmd ? taskYmd <= endYmd : true;
+
+      const titleOk = this.searchTerm ? task.title.toLowerCase().includes(this.searchTerm) : true;
+      return statusOk && priorityOk && tagOk && startOk && endOk && titleOk;
+    });
+  }
+
+  clearFilters(): void {
+    this.filterStatus = '';
+    this.filterPriority = '';
+    this.filterTag = '';
+    this.filterStartDate = undefined;
+    this.filterEndDate = undefined;
+    this.applyFilters();
+  }
+
   deleteTask(task: Task) {
     this.tasks = this.tasks.filter(t => t.id !== task.id);
     this._taskFlowService.deleteTask(task.id).subscribe();
@@ -160,6 +211,24 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
           },
         ],
       },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: 0 },
+        plugins: {
+          legend: {
+            position: 'left',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'rect',
+              boxWidth: 12,
+              padding: 12,
+              color: '#6b7280',
+              font: { size: 11 }
+            }
+          }
+        }
+      }
     });
 
   }

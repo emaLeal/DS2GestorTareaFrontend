@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface TaskFlow {
@@ -34,12 +34,22 @@ export class TaskFlowService {
         });
     }
 
-    getTaskFlow() {
+    getTaskFlow(params?: { all?: boolean; departmentId?: string }) {
         console.log("TaskFlowService - getTaskFlow called");
 
         const url = environment.baseUrl + environment.taskFlow.listTasks;
+
+        let httpParams = new HttpParams();
+        if (params?.all) {
+            httpParams = httpParams.set('all', 'true');
+        }
+        if (params?.departmentId) {
+            httpParams = httpParams.set('department_id', params.departmentId);
+        }
+
         return this._httpClient.get(url, {
-            headers: this.getAuthHeaders()
+            headers: this.getAuthHeaders(),
+            params: httpParams
         });
     }
 

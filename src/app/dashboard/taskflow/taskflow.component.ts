@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../authentication/auth.service';
 import { SearchService } from '../../services/search.service';
 import { NgZone } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
@@ -48,6 +49,7 @@ export class TaskflowComponent implements OnInit {
   isMenuOpen = false;
   showSearchResults = false;
   openTaskId: number | null = null; // <-- controla menú contextual abierto
+  isLoading: boolean = false;
 
   // Current editing/creating task
   currentTask: Partial<Task> = {
@@ -72,10 +74,11 @@ export class TaskflowComponent implements OnInit {
     private searchservice: SearchService, 
     private cdr: ChangeDetectorRef,
     private taskflowService: TaskFlowService,
+    private authService: AuthService,
   ) { }
 
   ngOnInit(): void {
-    this.loadTasksFromBackend(); // carga inicial (simulada)
+    this.loadTasksFromBackend(); // carga inicial
     this.filteredTasks = [...this.tasks];
     this.searchservice.search$.subscribe((term: string) => {
       this.filteredTasks = this.tasks.filter((t) =>
@@ -108,21 +111,72 @@ addTag() {
   }
 
   // -------------------------
+  // FILTROS (estado, prioridad, etiqueta, fechas)
+  // -------------------------
+  filterStatus: '' | 'To do' | 'in-progress' | 'completed' = '';
+  filterPriority: '' | 'low' | 'medium' | 'high' = '';
+  filterTag: string = '';
+  filterStartDate?: string;
+  filterEndDate?: string;
+
+  applyFilters(): void {
+    // Utilidad: tomar solo YYYY-MM-DD del string (evita problemas de timezone)
+    const extractYmd = (s?: string) => (s ? s.slice(0, 10) : '');
+
+    this.filteredTasks = this.tasks.filter((task) => {
+      const statusOk = this.filterStatus ? task.status === this.filterStatus : true;
+      const priorityOk = this.filterPriority ? task.priority === this.filterPriority : true;
+      const tagOk = this.filterTag
+        ? (task.tags || []).some((t) => t.toLowerCase().includes(this.filterTag.toLowerCase()))
+        : true;
+
+      // Fecha de referencia: usar createdAt si existe, si no findAt
+      const taskDateStr = task.createdAt || task.findAt;
+      const taskYmd = extractYmd(taskDateStr);
+      const startYmd = this.filterStartDate || '';
+      const endYmd = this.filterEndDate || '';
+
+      const startOk = startYmd ? taskYmd >= startYmd : true; // inclusivo
+      const endOk = endYmd ? taskYmd <= endYmd : true;       // inclusivo
+
+      return statusOk && priorityOk && tagOk && startOk && endOk;
+    });
+  }
+
+  clearFilters(): void {
+    this.filterStatus = '';
+    this.filterPriority = '';
+    this.filterTag = '';
+    this.filterStartDate = undefined;
+    this.filterEndDate = undefined;
+    this.filteredTasks = [...this.tasks];
+  }
+
+  // -------------------------
   // CONECCION CON BACKEND 
   // -------------------------
   // 1) loadTasksFromBackend:
   //    Aquí se debe reemplazar la simulación por: this.tasksService.getTasks().subscribe(...) cuando este el backend
   loadTasksFromBackend() {
-    console.log("TaskFlow - Cargando tareas (simulado)...");
-    this.taskflowService.getTaskFlow().subscribe({
+    console.log("TaskFlow - Cargando tareas...");
+    this.isLoading = true;
+    const user = this.authService.getProfile();
+    const isManager = user && (user.role_id === 1 || user.role_id === '1');
+    const params = isManager
+      ? { all: true }
+      : { departmentId: user?.department_id };
+
+    this.taskflowService.getTaskFlow(params as any).subscribe({
         next: (data: any) => {
           this.tasks = data; // ✅ Guardar en la variable del componente
           this.filteredTasks = [...this.tasks]; // Actualizar la lista filtrada
           console.log("Tasks cargadas en el componente:", this.tasks);
-          
+          this.applyFilters();
+          this.isLoading = false;
         },
         error: (err) => {
           console.error("Error al obtener tareas:", err);
+          this.isLoading = false;
         }
       })
   }
@@ -317,7 +371,18 @@ addTag() {
 
   formatDate(iso?: string) {
     if (!iso) return '';
-    const d = new Date(iso);
-    return d.toLocaleDateString();
+    // Intentar formato ISO YYYY-MM-DD...
+    const ymd = iso.slice(0, 10); // seguro si viene con tiempo
+    if (/^\d{4}-\d{2}-\d{2}$/.test(ymd)) {
+      const [y, m, d] = ymd.split('-');
+      return `${Number(d)}/${Number(m)}/${y}`;
+    }
+    // Si viene en otro formato (p.ej. 7/9/2025) intentar usar Date como respaldo
+    const dObj = new Date(iso);
+    if (!isNaN(dObj.getTime())) {
+      return dObj.toLocaleDateString();
+    }
+    // Último recurso: devolver la entrada
+    return iso;
   }
 }
