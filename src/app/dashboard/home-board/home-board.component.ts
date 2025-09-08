@@ -38,6 +38,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
   private taskSubscription?: Subscription;
 
   constructor(
+    private _taskflowService: TaskFlowService,
     private _router: Router,
     private _searchService: SearchService,
     private _taskFlowService: TaskFlowService
@@ -65,7 +66,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
     const nextStatus = task.status === 'To do' ? 'in-progress' :
       task.status === 'in-progress' ? 'completed' : 'To do';
     task.status = nextStatus;
-    this._taskFlowService.updateTask(task.id, task).subscribe();
+    this._taskflowService.updateTask(task.id, task).subscribe();
   }
 
 
@@ -83,20 +84,24 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   // simula carga de tareas hasta que no haya backend 
   loadMockTasks(): void {
-    this._taskFlowService.getTaskFlowAll().subscribe({
+    this._taskFlowService.getTaskFlow().subscribe({
       next: (res: any) => {
         this.tasks = res.map((task: any) => task)
         this.filteredTasks = [...this.tasks];
         this.initCharts();
         this.loadTasksChartByUser();
-<<<<<<< HEAD
       }, error: (err: any) => {
-=======
-      }, error: (err) => {
->>>>>>> 5fe73a7 (Bugs)
         console.log(err)
       }
     })
+    // this.tasks = [
+    //   { id: 1, title: "Attend Nischal's Birthday Party", status: 'todo', createdAt: new Date() },
+    //   { id: 2, title: 'Landing Page Design for TravelDays', status: 'todo', createdAt: new Date() },
+    //   { id: 3, title: 'Presentation on Final Product', status: 'todo', createdAt: new Date() },
+    //   { id: 4, title: 'GYM', status: 'in-progress', createdAt: new Date() },
+    //   { id: 5, title: 'Walk the dog', status: 'completed', createdAt: new Date() },
+    //   { id: 6, title: 'Conduct meeting', status: 'completed', createdAt: new Date() },
+    // ];
   }
 
   // Filtrar por estado
@@ -131,7 +136,7 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
 
   deleteTask(task: Task) {
     this.tasks = this.tasks.filter(t => t.id !== task.id);
-    this._taskFlowService.deleteTask(task.id).subscribe();
+    this._taskflowService.deleteTask(task.id).subscribe();
 
     this.filteredTasks = [...this.tasks];
     this.openTaskId = null;
