@@ -89,7 +89,11 @@ export class HomeBoardComponent implements OnInit, OnDestroy {
         this.filteredTasks = [...this.tasks];
         this.initCharts();
         this.loadTasksChartByUser();
+<<<<<<< HEAD
       }, error: (err: any) => {
+=======
+      }, error: (err) => {
+>>>>>>> 5fe73a7 (Bugs)
         console.log(err)
       }
     })

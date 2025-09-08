@@ -16,8 +16,16 @@ export const environment = {
       updateTask: 'task/patch/', 
       deleteTask: 'task/delete/',
       listTasksAll: 'task/getall/',
+<<<<<<< HEAD
   },
   tasks: {
     getAllTasks: 'task/getall/'
   }
 };
+=======
+    },
+      tasks: {
+        getAllTasks: 'task/getall/'
+    }
+  };
+>>>>>>> 5fe73a7 (Bugs)
