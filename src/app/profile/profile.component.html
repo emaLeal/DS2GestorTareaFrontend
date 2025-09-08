@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-50 flex items-center justify-center p-6">
   <div class="w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden">
-    
+
     <!-- Header -->
     <div class="bg-indigo-600 px-8 py-6 flex items-center justify-between">
       <h2 class="text-2xl font-bold text-white">Perfil de Usuario</h2>
@@ -8,20 +8,19 @@
         routerLink="/dashboard/taskflow"
         class="bg-white/20 px-4 py-2 text-white rounded-lg hover:bg-white/30 transition inline-block text-center">
         Atrás
-        </a>
-
+      </a>
     </div>
 
     <!-- Content -->
-    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-      
+    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8" *ngIf="user; else noUser">
+
       <!-- Nombre -->
       <div class="flex flex-col">
         <label class="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
           <span class="material-icons text-indigo-500 text-base">person</span>
           Nombre
         </label>
-        <input type="text" [value]="user.name" readonly
+        <input type="text" [value]="user.first_name" readonly
           class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
       </div>
 
@@ -51,7 +50,7 @@
           <span class="material-icons text-indigo-500 text-base">fingerprint</span>
           Identificación
         </label>
-        <input type="text" [value]="user.id" readonly
+        <input type="text" [value]="user.document_id" readonly
           class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
       </div>
 
@@ -71,7 +70,7 @@
           <span class="material-icons text-indigo-500 text-base">business</span>
           Departamento
         </label>
-        <input type="text" [value]="user.departaments" readonly
+        <input type="text" [value]="user.department_name" readonly
           class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
       </div>
 
@@ -81,9 +80,16 @@
           <span class="material-icons text-indigo-500 text-base">supervisor_account</span>
           Rol
         </label>
-        <input type="text" [value]="user.rol" readonly
+        <input type="text" [value]="user.role_description" readonly
           class="px-4 py-3 border rounded-lg bg-gray-50 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-200">
       </div>
     </div>
+
+    <!-- Si no hay usuario -->
+    <ng-template #noUser>
+      <div class="p-8 text-center text-gray-500">
+        No hay datos de usuario disponibles.
+      </div>
+    </ng-template>
   </div>
 </div>

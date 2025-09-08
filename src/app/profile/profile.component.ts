@@ -4,15 +4,16 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-
 interface User {
-  name: string ; 
+  first_name: string;
   last_name: string;
-  email: string ; 
-  identification_type: string; 
-  id: number;
-  departaments: string;
-  rol: string
+  email: string;
+  document_id: string;
+  identification_type: string;
+  role_description: string;
+  department_name: string;
+  department_id: number;
+
 }
 
 @Component({
@@ -20,28 +21,30 @@ interface User {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, RouterModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
+  user!: User | null;
 
-   constructor(private router: Router) {}
-  user!: User;
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.loadMockUser();
+    this.loadUserFromLocalStorage();
   }
 
-  // simulacion de datos de usuario 
-  loadMockUser(): void {
-    this.user= {
-        name: "karen daniela", 
-        last_name: "guzman h", 
-        email: "karenh99@gamil.com", 
-        identification_type: "Cedula", 
-        id: 1145667890, 
-        departaments: "tecnologia", 
-        rol: "usuario" 
-      };
-  }
+  // cargar el usuario desde localStorage
+  loadUserFromLocalStorage(): void {
+    const userData = localStorage.getItem('user_data');
 
+    if (userData && userData !== 'undefined') {
+      try {
+        this.user = JSON.parse(userData);
+      } catch (e) {
+        console.error("Error al parsear user_data:", e);
+        this.user = null;
+      }
+    } else {
+      this.user = null;
+    }
+  }
 }
